@@ -1,10 +1,13 @@
 @import './reset.scss';
 @import './variables/globals.scss';
-@import './themes/dark.scss';
+
+body {
+	height: 100vh;
+	background-color: var(--bg-color);
+}
 
 .app {
-  min-height: 100vh;
-	background-color: var(--bg-color);
 	color: var(--primary-color);
 	font: var(--font-m);
+	overflow: hidden;
 }

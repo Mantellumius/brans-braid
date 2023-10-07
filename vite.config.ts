@@ -7,6 +7,8 @@ export default defineConfig(async () => ({
 
   resolve: {
     alias: {
+      "pages": path.resolve(__dirname, "./src/pages"),
+      "stores": path.resolve(__dirname, "./src/stores"),
       "assets": path.resolve(__dirname, "./src/assets"),
       "shared": path.resolve(__dirname, "./src/shared"),
       "app": path.resolve(__dirname, "./src/app"),

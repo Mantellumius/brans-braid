@@ -1,9 +1,13 @@
-import { Explorer } from 'widgets/Explorer';
+import { Link, Outlet } from 'react-router-dom';
+import './styles/index.scss';
 
 function App() {
 	return (
 		<div className="app dark">
-			<Explorer />
+			<Outlet />
+			<Link to={'explorer/?path=M:\\'}>
+				Explorer
+			</Link>
 		</div>
 	);
 }

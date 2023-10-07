@@ -1,6 +1,6 @@
 {
   "build": {
-    "beforeDevCommand": "npm run dev",
+    "beforeDevCommand": "npm run dev:ui",
     "beforeBuildCommand": "npm run build",
     "devPath": "http://localhost:1420",
     "distDir": "../dist",
@@ -34,7 +34,7 @@
         "fullscreen": false,
         "resizable": true,
         "title": "brans-braid",
-        "width": 800,
+        "width": 1080,
         "height": 600
       }
     ]

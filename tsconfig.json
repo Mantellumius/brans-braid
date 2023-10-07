@@ -19,8 +19,16 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
     "baseUrl": "./src",
     "paths": {
+      "pages":[
+        "/pages"
+      ],
+      "stores":[
+        "/stores"
+      ],
       "assets":[
         "/assets"
       ],
@@ -35,6 +43,7 @@
       ],
     },
   },
+  "exclude": ["*.config.*"],
   "include": ["src"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

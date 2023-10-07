@@ -1,18 +1,18 @@
 import { FC } from 'react';
-import classes from './ExplorerItem.module.scss';
+import cls from './Item.module.scss';
 import classNames from 'shared/lib/classNames/classNames';
-import { ExplorerItem as ExplorerItemType } from 'widgets/Explorer/types/ExplorerItem';
 import FolderIcon  from 'assets/icons/folder.svg';
 import FileIcon  from 'assets/icons/file.svg';
 import { Button } from 'shared/ui/Button/Button';
+import { ExplorerItem } from 'widgets/FileExplorer';
 
-export const ExplorerItem: FC<Props> = ({ className, item, read_dir }) => {
+export const Item: FC<Props> = ({ className, item, open }) => {
 	return (
-		<li className={classNames(classes.root, {}, [className])}>
+		<li className={classNames(cls.root, {}, [className])}>
 			{
-				<Button onClick={read_dir.bind(null, item.path)} disabled={!item.is_folder}>
+				<Button onClick={open.bind(null, item.path)} disabled={!item.is_dir}>
 					{
-						item.is_folder ?
+						item.is_dir ?
 							<img src={FolderIcon} alt="folder" width={20} height={20} style={{marginRight: '5px'}}/> :
 							<img src={FileIcon} alt="file" width={20} height={20} style={{marginRight: '5px'}}/> 
 					}
@@ -25,6 +25,6 @@ export const ExplorerItem: FC<Props> = ({ className, item, read_dir }) => {
 
 interface Props {
 	className?: string,
-	item: ExplorerItemType,
-	read_dir: (path: string) => void,
+	item: ExplorerItem,
+	open: (path: string) => void;
 }

@@ -1,22 +1,27 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
-use std::{fs::{self, DirEntry, File, FileType}, os, ffi::OsStr};
+use std::{
+    ffi::OsStr,
+    fs::{self, DirEntry},
+};
 use tauri::*;
 
 #[derive(Debug, serde::Serialize)]
 struct Item {
     path: String,
     name: String,
-    is_folder: bool,
+    is_dir: bool,
+    is_file: bool,
     have_access: bool,
     extension: String,
 }
 
 impl Item {
-    fn from(dir: &std::fs::DirEntry) -> Self {
+    fn from(dir: &DirEntry) -> Self {
         Item {
             path: dir.path().to_str().unwrap().to_string(),
             name: dir.file_name().to_str().unwrap().to_string(),
-            is_folder: dir.path().is_dir(),
+            is_dir: dir.path().is_dir(),
+            is_file: dir.path().is_file(),
             have_access: dir.metadata().unwrap().permissions().readonly(),
             extension: get_extension(dir),
         }
@@ -40,9 +45,13 @@ fn main() {
         .expect("error while running tauri application");
 }
 
-fn get_extension(dir: &std::fs::DirEntry) -> String {
+fn get_extension(dir: &DirEntry) -> String {
     if dir.file_type().unwrap().is_dir() {
-        return String::new()
+        return String::new();
     }
-    dir.path().extension().unwrap_or(OsStr::new("")).to_string_lossy().to_string()
+    dir.path()
+        .extension()
+        .unwrap_or(OsStr::new(""))
+        .to_string_lossy()
+        .to_string()
 }
