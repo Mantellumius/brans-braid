@@ -8,14 +8,12 @@ import { Explorer } from 'pages/Explorer';
 const router = createBrowserRouter([
 	{
 		path: '/',
-		element: <App />,
-		children: [
-			{
-				path: 'explorer',
-				element: <Explorer />,
-			}
-		]
+		element: <App />,	
 	},
+	{
+		path: 'explorer',
+		element: <Explorer />,
+	}
 ]);
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(

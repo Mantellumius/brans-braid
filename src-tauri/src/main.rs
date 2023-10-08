@@ -1,31 +1,36 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+use jwalk::WalkDir;
 use std::{
-    ffi::OsStr,
-    fs::{self, DirEntry},
+    fmt::format,
+    fs::{self},
+    os::windows::prelude::AsHandle,
+    sync::{Arc, Mutex},
+    thread,
 };
 use tauri::*;
+mod item;
+mod searcher;
+use item::Item;
 
-#[derive(Debug, serde::Serialize)]
-struct Item {
-    path: String,
-    name: String,
-    is_dir: bool,
-    is_file: bool,
-    have_access: bool,
-    extension: String,
-}
+const INVALID_DIRS: [&str; 7] = [
+    ".git",
+    "venv",
+    ".idea",
+    "node_modules",
+    "Library",
+    "Debug",
+    "postgres",
+];
+const BUTCH_SIZE: usize = 250;
 
-impl Item {
-    fn from(dir: &DirEntry) -> Self {
-        Item {
-            path: dir.path().to_str().unwrap().to_string(),
-            name: dir.file_name().to_str().unwrap().to_string(),
-            is_dir: dir.path().is_dir(),
-            is_file: dir.path().is_file(),
-            have_access: dir.metadata().unwrap().permissions().readonly(),
-            extension: get_extension(dir),
-        }
-    }
+fn main() {
+    tauri::Builder::default()
+        .invoke_handler(tauri::generate_handler![read_dir, search])
+        .manage(ThreadCount {
+            thread_coutner: Arc::new(Mutex::new(0)),
+        })
+        .run(tauri::generate_context!())
+        .expect("error while running tauri application");
 }
 
 #[tauri::command]
@@ -38,20 +43,75 @@ fn read_dir(path: &str) -> Result<Vec<serde_json::Value>> {
     }
 }
 
-fn main() {
-    tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![read_dir])
-        .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+#[tauri::command]
+async fn search<R: Runtime>(
+    query: String,
+    path: String,
+    searcher_state: State<'_, ThreadCount>,
+    _app: tauri::AppHandle<R>,
+    window: tauri::Window<R>,
+) -> Result<usize> {
+    let thread_count = Arc::clone(&searcher_state.thread_coutner.clone());
+    *thread_count.lock().unwrap() += 1;
+    let call_number = *thread_count.lock().unwrap();
+    println!("Start {}", call_number);
+    let window_clone = window.clone();
+    window.listen(format!("start_processing_search_call-{}", call_number), move |_event| {
+        let filter = create_filter(query.clone());
+        search_dir(path.clone(), filter, &thread_count, call_number, &window_clone);
+    });
+    Ok(call_number)
 }
 
-fn get_extension(dir: &DirEntry) -> String {
-    if dir.file_type().unwrap().is_dir() {
-        return String::new();
+fn search_dir(
+    path: String,
+    filter: impl Fn(&str) -> bool,
+    thread_count: &Arc<Mutex<usize>>,
+    call_number: usize,
+    window: &tauri::Window<impl Runtime>,
+) {
+    let event_name = &format!("on_search_result-{}", call_number);
+    let mut items = WalkDir::new(path)
+        .process_read_dir(|_, _, _, children| {
+            children.iter_mut().flatten().for_each(|dir_entry| {
+                if !is_valid_filename(get_file_name(dir_entry)) {
+                    dir_entry.read_children_path = None;
+                }
+            });
+        })
+        .into_iter()
+        .flatten()
+        .filter(move |entry| filter(get_file_name(entry)))
+        .map(move |entry| item::Item::from_jwalk(&entry));
+    loop {
+        if *thread_count.lock().unwrap() != call_number {
+            break;
+        }
+        let butch = items.by_ref().take(BUTCH_SIZE).collect::<Vec<Item>>();
+        if butch.is_empty() || *thread_count.lock().unwrap() != call_number {
+            break;
+        }
+        let _ = window.emit(event_name, butch);
     }
-    dir.path()
-        .extension()
-        .unwrap_or(OsStr::new(""))
-        .to_string_lossy()
-        .to_string()
+    let _ = window.emit(event_name, Vec::<Item>::new());
+}
+
+pub fn create_filter(query: String) -> impl Fn(&str) -> bool {
+    move |file_name: &str| {
+        file_name
+            .to_lowercase()
+            .contains(&query.clone().to_lowercase())
+    }
+}
+
+fn is_valid_filename(filename: &str) -> bool {
+    !INVALID_DIRS.iter().any(|&dir| filename == dir)
+}
+
+fn get_file_name(entry: &jwalk::DirEntry<((), ())>) -> &str {
+    entry.file_name().to_str().unwrap()
+}
+
+struct ThreadCount {
+    pub thread_coutner: Arc<Mutex<usize>>,
 }

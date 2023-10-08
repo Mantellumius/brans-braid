@@ -16,13 +16,19 @@ export const FileExplorer: FC<Props> = observer(({ className, path, open }) => {
 	return (
 		<div className={classNames(cls.root, {}, [className])}>
 			<div className={classNames(cls.root__navigation)}>
-				<Button onClick={navigate.bind(null, -1)} className={classNames(cls.root__navigation_button)}>&lt;</Button>
-				<Button onClick={navigate.bind(null, 1)} className={classNames(cls.root__navigation_button)}>&gt;</Button>
+				<Button onClick={navigate.bind(null, -1)} 
+					className={classNames(cls.root__navigation_button)}>
+					&lt;
+				</Button>
+				<Button onClick={navigate.bind(null, 1)} 
+					className={classNames(cls.root__navigation_button)}>
+					&gt;
+				</Button>
 			</div>
 			<ul className={classNames(cls.root__list)}>
 				{
-					explorerStore.items.map(item => <Item key={item.path} 
-						item={item} 
+					explorerStore.items.slice(0, 1000).map(item => <Item key={item.path} 
+						item={item}
 						open={open}/>
 					)
 				}
