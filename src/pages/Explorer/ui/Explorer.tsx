@@ -1,19 +1,27 @@
 import { FC } from 'react';
 import cls from './Explorer.module.scss';
 import classNames from 'shared/lib/classNames/classNames';
-import { FileExplorer } from 'widgets/FileExplorer';
+import { Files } from 'widgets/Files';
 import { useSearchParams } from 'react-router-dom';
 import { Search } from 'widgets/Search';
+import { Path } from 'widgets/Path';
+import { Footer } from 'widgets/Footer';
 
 export const Explorer: FC<Props> = ({ className }) => {
 	const [searchParams, setSearchParams] = useSearchParams();
+
 	return (
 		<main className={classNames(cls.root, {}, [className])}>
-			<Search />
-			<FileExplorer 
+			<header className={cls.root__header}>
+				<Path />
+				<Search />
+				{/* <Navigtaion /> */}
+			</header>
+			<Files
 				path={searchParams.get('path') ?? '.'} 
 				open={(newPath: string) => setSearchParams({path: newPath})} 
-			/>	
+			/>
+			<Footer />	
 		</main>
 	);
 };

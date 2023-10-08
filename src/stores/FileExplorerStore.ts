@@ -32,29 +32,29 @@ class ExplorerStore {
 
 	search(query: string) {
 		this.query = query;
-		if (!query) return;
+		if (!query) return this.stopSearch();
 		invoke<number>('search', { path: this.path, query: this.query }).then((callNumber) => {
 			runInAction(async () => {
 				this.unlisten?.();
 				this.searchResults = [];
 				this.unlisten = await listen<ExplorerItem[]>(`on_search_result-${callNumber}`, (event) => {
 					runInAction(() => {
-						if (this.searchResults.length % 100 === 0) {
-							console.log(this.searchResults.length);
-						}
 						if (event.payload.length === 0) {
-							this.unlisten?.();
-							this.unlisten = undefined;
-							console.log(`Finished ${callNumber} Query: ${query}`);
+							this.stopSearch();
 							return;
 						}
 						this.searchResults.push(...event.payload);
 					});
 				});
 				emit(`start_processing_search_call-${callNumber}`);
-				console.log(`Start ${callNumber}`);
 			});
 		});
+	}
+
+	private stopSearch() {
+		this.unlisten?.();
+		this.unlisten = undefined;
+		invoke('stop_search');
 	}
 }
 

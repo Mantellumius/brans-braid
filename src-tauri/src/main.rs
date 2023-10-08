@@ -1,11 +1,8 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 use jwalk::WalkDir;
 use std::{
-    fmt::format,
     fs::{self},
-    os::windows::prelude::AsHandle,
     sync::{Arc, Mutex},
-    thread,
 };
 use tauri::*;
 mod item;
@@ -25,7 +22,7 @@ const BUTCH_SIZE: usize = 250;
 
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![read_dir, search])
+        .invoke_handler(tauri::generate_handler![read_dir, search, stop_search])
         .manage(ThreadCount {
             thread_coutner: Arc::new(Mutex::new(0)),
         })
@@ -54,15 +51,32 @@ async fn search<R: Runtime>(
     let thread_count = Arc::clone(&searcher_state.thread_coutner.clone());
     *thread_count.lock().unwrap() += 1;
     let call_number = *thread_count.lock().unwrap();
-    println!("Start {}", call_number);
     let window_clone = window.clone();
-    window.listen(format!("start_processing_search_call-{}", call_number), move |_event| {
-        let filter = create_filter(query.clone());
-        search_dir(path.clone(), filter, &thread_count, call_number, &window_clone);
-    });
+    window.listen(
+        format!("start_processing_search_call-{}", call_number),
+        move |_event| {
+            let filter = create_filter(query.clone());
+            search_dir(
+                path.clone(),
+                filter,
+                &thread_count,
+                call_number,
+                &window_clone,
+            );
+        },
+    );
     Ok(call_number)
 }
 
+#[tauri::command]
+fn stop_search<R: Runtime>(
+    searcher_state: State<'_, ThreadCount>,
+    _app: tauri::AppHandle<R>,
+    _window: tauri::Window<R>,
+) -> Result<()> {
+    *searcher_state.thread_coutner.lock().unwrap() += 1;
+    Ok(())
+}
 fn search_dir(
     path: String,
     filter: impl Fn(&str) -> bool,

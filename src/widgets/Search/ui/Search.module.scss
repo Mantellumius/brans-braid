@@ -1,0 +1,18 @@
+.root {
+	display: flex;
+	border: 1px solid var(--neutral-800);
+	border-radius: 4px;
+	align-items: center;
+	padding-inline: 12px;
+	justify-content: space-between;
+}
+
+.root__input {
+	border: none;
+
+}
+
+.root__input:focus {
+	border: none;
+	outline: none;
+}

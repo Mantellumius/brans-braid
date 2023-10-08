@@ -1,13 +1,21 @@
 import { FC } from 'react';
-import classes from './Search.module.scss';
+import cls from './Search.module.scss';
 import classNames from 'shared/lib/classNames/classNames';
 import { useRootStore } from 'stores/RootStore';
+import { Input } from 'shared/ui/Input';
+import { Icon } from 'shared/ui/Icon/Icon';
+import SearchIcon from 'assets/icons/search.svg';
 
 export const Search: FC<Props> = ({ className }) => {
 	const {fileExplorerStore} = useRootStore();
 	return (
-		<div className={classNames(classes.root, {}, [className])}>
-			<input type="text" placeholder="Search" onChange={e => fileExplorerStore.search(e.target.value)}/>
+		<div className={classNames(cls.root, {}, [className])}>
+			<Input type="text" 
+				placeholder="Search" 
+				onChange={e => fileExplorerStore.search(e.target.value)}
+				className={cls.root__input}
+			/>
+			<Icon icon={SearchIcon}/>
 		</div>
 	);
 };

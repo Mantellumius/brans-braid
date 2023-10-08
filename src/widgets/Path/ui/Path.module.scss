@@ -1,0 +1,10 @@
+.root {
+	display: flex;
+	align-items: center;
+	justify-content: flex-start;
+	border: 1px solid var(--neutral-800);
+	border-radius: 4px;
+	padding-inline: 12px;
+	height: 40px;
+	flex: 1;
+}

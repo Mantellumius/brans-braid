@@ -1,20 +1,13 @@
 import { Link, Outlet } from 'react-router-dom';
 import './styles/index.scss';
+import cls from './Layout.module.scss';
 import { invoke } from '@tauri-apps/api/tauri';
-import { listen } from '@tauri-apps/api/event';
 import { Button } from 'shared/ui/Button/Button';
-import { useEffect } from 'react';
+import classNames from 'shared/lib/classNames/classNames';
 
-function App() {
-	useEffect(() => {
-		const arr = [];
-		listen<number>('test', (event) => {
-			if (event.payload=== 999)
-				console.log('Finished', arr.length);
-		});
-	}, []);
+const Layout = () => { 
 	return (
-		<div className="app dark">
+		<div className={classNames(cls.root)}>
 			<Outlet />
 			<Link to={'explorer/?path=M:\\'}>
 				Explorer
@@ -24,6 +17,6 @@ function App() {
 			</Button>
 		</div>
 	);
-}
+};
 
-export default App;
+export default Layout;

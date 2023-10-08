@@ -1,0 +1,16 @@
+.root {
+	text-wrap: nowrap;
+	border-radius: 4px;
+}
+
+.root__item {
+	display: flex;
+	gap: 8px;
+	border-radius: inherit;
+	background-color: transparent;
+	border: none;
+}
+
+.root:hover {
+	background: rgba(255,255,255, .2);
+}
