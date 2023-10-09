@@ -1,6 +1,8 @@
 .root {
-	padding: 16px;
+	padding: 16px 0 20px 16px;
 	color: var(--neutral-100);
 	font: var(--font-m);
 	overflow: hidden;
+	height: 100vh;
+	width: 100vw;
 }

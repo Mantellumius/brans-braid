@@ -4,6 +4,7 @@ import cls from './Layout.module.scss';
 import { invoke } from '@tauri-apps/api/tauri';
 import { Button } from 'shared/ui/Button/Button';
 import classNames from 'shared/lib/classNames/classNames';
+import { Footer } from 'widgets/Footer';
 
 const Layout = () => { 
 	return (
@@ -15,6 +16,7 @@ const Layout = () => {
 			<Button onClick={() => invoke('test')}>
 				Test
 			</Button>
+			<Footer />	
 		</div>
 	);
 };

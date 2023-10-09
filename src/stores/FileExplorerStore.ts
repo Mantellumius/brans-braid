@@ -1,7 +1,7 @@
 import { makeAutoObservable, runInAction } from 'mobx';
 import { invoke } from '@tauri-apps/api/tauri';
 import { listen, emit } from '@tauri-apps/api/event';
-import { ExplorerItem } from 'widgets/FileExplorer';
+import { ExplorerItem } from 'widgets/Files';
 
 class ExplorerStore {
 	path = '';
@@ -22,6 +22,9 @@ class ExplorerStore {
 		return this.currentFolder;
 	}
 
+	get isSearching() {
+		return !!this.unlisten;
+	}
 
 	*read(path: string) {
 		this.path = path;
@@ -34,6 +37,7 @@ class ExplorerStore {
 		this.query = query;
 		if (!query) return this.stopSearch();
 		invoke<number>('search', { path: this.path, query: this.query }).then((callNumber) => {
+			console.log(`Starting search ${callNumber}`);
 			runInAction(async () => {
 				this.unlisten?.();
 				this.searchResults = [];

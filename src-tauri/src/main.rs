@@ -18,7 +18,7 @@ const INVALID_DIRS: [&str; 7] = [
     "Debug",
     "postgres",
 ];
-const BUTCH_SIZE: usize = 250;
+const BUTCH_SIZE: usize = 150;
 
 fn main() {
     tauri::Builder::default()
@@ -105,6 +105,7 @@ fn search_dir(
         if butch.is_empty() || *thread_count.lock().unwrap() != call_number {
             break;
         }
+        println!("Send {}", call_number);
         let _ = window.emit(event_name, butch);
     }
     let _ = window.emit(event_name, Vec::<Item>::new());

@@ -18,6 +18,7 @@ const router = createBrowserRouter([
 	}
 ]);
 
+
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
 	<StoreProvider store={new RootStore()}>
 		<React.StrictMode>

@@ -5,7 +5,6 @@ import { Files } from 'widgets/Files';
 import { useSearchParams } from 'react-router-dom';
 import { Search } from 'widgets/Search';
 import { Path } from 'widgets/Path';
-import { Footer } from 'widgets/Footer';
 
 export const Explorer: FC<Props> = ({ className }) => {
 	const [searchParams, setSearchParams] = useSearchParams();
@@ -21,7 +20,6 @@ export const Explorer: FC<Props> = ({ className }) => {
 				path={searchParams.get('path') ?? '.'} 
 				open={(newPath: string) => setSearchParams({path: newPath})} 
 			/>
-			<Footer />	
 		</main>
 	);
 };
