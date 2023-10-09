@@ -7,6 +7,7 @@ export default defineConfig(async () => ({
 
   resolve: {
     alias: {
+      "hooks": path.resolve(__dirname, "./src/hooks"),
       "pages": path.resolve(__dirname, "./src/pages"),
       "stores": path.resolve(__dirname, "./src/stores"),
       "assets": path.resolve(__dirname, "./src/assets"),

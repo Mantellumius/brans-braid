@@ -1,7 +1,8 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
-use jwalk::WalkDir;
+use jwalk::{DirEntry, DirEntryIter, WalkDir};
 use std::{
     fs::{self},
+    iter::{Filter, Flatten, Map},
     sync::{Arc, Mutex},
 };
 use tauri::*;
@@ -18,13 +19,23 @@ const INVALID_DIRS: [&str; 7] = [
     "Debug",
     "postgres",
 ];
-const BUTCH_SIZE: usize = 150;
+
+const BUTCH_SIZE: usize = 10;
+
+type FolderIterator = Flatten<DirEntryIter<((), ())>>;
 
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![read_dir, search, stop_search])
+        .invoke_handler(tauri::generate_handler![
+            read_dir,
+            create_searcher,
+            get_search_results
+        ])
         .manage(ThreadCount {
             thread_coutner: Arc::new(Mutex::new(0)),
+        })
+        .manage(SearcherState {
+            iterator: Arc::new(Mutex::new(search_dir("".to_string()))),
         })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -41,51 +52,40 @@ fn read_dir(path: &str) -> Result<Vec<serde_json::Value>> {
 }
 
 #[tauri::command]
-async fn search<R: Runtime>(
-    query: String,
+fn create_searcher<R: Runtime>(
+    iterators: State<'_, SearcherState>,
     path: String,
-    searcher_state: State<'_, ThreadCount>,
-    _app: tauri::AppHandle<R>,
-    window: tauri::Window<R>,
-) -> Result<usize> {
-    let thread_count = Arc::clone(&searcher_state.thread_coutner.clone());
-    *thread_count.lock().unwrap() += 1;
-    let call_number = *thread_count.lock().unwrap();
-    let window_clone = window.clone();
-    window.listen(
-        format!("start_processing_search_call-{}", call_number),
-        move |_event| {
-            let filter = create_filter(query.clone());
-            search_dir(
-                path.clone(),
-                filter,
-                &thread_count,
-                call_number,
-                &window_clone,
-            );
-        },
-    );
-    Ok(call_number)
-}
-
-#[tauri::command]
-fn stop_search<R: Runtime>(
     searcher_state: State<'_, ThreadCount>,
     _app: tauri::AppHandle<R>,
     _window: tauri::Window<R>,
-) -> Result<()> {
-    *searcher_state.thread_coutner.lock().unwrap() += 1;
-    Ok(())
+) -> Result<usize> {
+    let thread_count = Arc::clone(&searcher_state.thread_coutner.clone());
+    let searcher_number = *thread_count.lock().unwrap();
+    let mut iterator = iterators.iterator.lock().unwrap();
+    *iterator = search_dir(path.clone());
+    *thread_count.lock().unwrap() += 1;
+    Ok(searcher_number)
 }
-fn search_dir(
-    path: String,
-    filter: impl Fn(&str) -> bool,
-    thread_count: &Arc<Mutex<usize>>,
-    call_number: usize,
-    window: &tauri::Window<impl Runtime>,
-) {
-    let event_name = &format!("on_search_result-{}", call_number);
-    let mut items = WalkDir::new(path)
+
+#[tauri::command]
+async fn get_search_results<R: Runtime>(
+    query: String,
+    iterators: State<'_, SearcherState>,
+    _app: tauri::AppHandle<R>,
+    _window: tauri::Window<R>,
+) -> Result<Vec<Item>> {
+    let mut iterator = iterators.iterator.lock().unwrap();
+    let query = query.clone().to_lowercase();
+    Ok(iterator
+        .by_ref()
+        .filter(move |entry| get_file_name(entry).to_lowercase().contains(&query))
+        .take(BUTCH_SIZE)
+        .map(move |entry| item::Item::from_jwalk(&entry))
+        .collect::<Vec<Item>>())
+}
+
+fn search_dir(path: String) -> FolderIterator {
+    WalkDir::new(path)
         .process_read_dir(|_, _, _, children| {
             children.iter_mut().flatten().for_each(|dir_entry| {
                 if !is_valid_filename(get_file_name(dir_entry)) {
@@ -95,28 +95,6 @@ fn search_dir(
         })
         .into_iter()
         .flatten()
-        .filter(move |entry| filter(get_file_name(entry)))
-        .map(move |entry| item::Item::from_jwalk(&entry));
-    loop {
-        if *thread_count.lock().unwrap() != call_number {
-            break;
-        }
-        let butch = items.by_ref().take(BUTCH_SIZE).collect::<Vec<Item>>();
-        if butch.is_empty() || *thread_count.lock().unwrap() != call_number {
-            break;
-        }
-        println!("Send {}", call_number);
-        let _ = window.emit(event_name, butch);
-    }
-    let _ = window.emit(event_name, Vec::<Item>::new());
-}
-
-pub fn create_filter(query: String) -> impl Fn(&str) -> bool {
-    move |file_name: &str| {
-        file_name
-            .to_lowercase()
-            .contains(&query.clone().to_lowercase())
-    }
 }
 
 fn is_valid_filename(filename: &str) -> bool {
@@ -129,4 +107,8 @@ fn get_file_name(entry: &jwalk::DirEntry<((), ())>) -> &str {
 
 struct ThreadCount {
     pub thread_coutner: Arc<Mutex<usize>>,
+}
+
+struct SearcherState {
+    pub iterator: Arc<Mutex<FolderIterator>>,
 }

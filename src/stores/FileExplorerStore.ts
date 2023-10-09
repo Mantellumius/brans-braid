@@ -1,6 +1,5 @@
-import { makeAutoObservable, runInAction } from 'mobx';
+import { makeAutoObservable } from 'mobx';
 import { invoke } from '@tauri-apps/api/tauri';
-import { listen, emit } from '@tauri-apps/api/event';
 import { ExplorerItem } from 'widgets/Files';
 
 class ExplorerStore {
@@ -8,7 +7,7 @@ class ExplorerStore {
 	query = '';
 	currentFolder: ExplorerItem[];
 	searchResults: ExplorerItem[];
-	unlisten?: () => void;
+	searcherNumber: number = -1;
 
 	constructor() {
 		this.currentFolder = [];
@@ -23,7 +22,7 @@ class ExplorerStore {
 	}
 
 	get isSearching() {
-		return !!this.unlisten;
+		return this.searcherNumber >= 0;
 	}
 
 	*read(path: string) {
@@ -33,32 +32,23 @@ class ExplorerStore {
 		this.currentFolder = yield invoke<ExplorerItem[]>('read_dir', { path });
 	}
 
-	search(query: string) {
+	*search(query: string) {
 		this.query = query;
-		if (!query) return this.stopSearch();
-		invoke<number>('search', { path: this.path, query: this.query }).then((callNumber) => {
-			console.log(`Starting search ${callNumber}`);
-			runInAction(async () => {
-				this.unlisten?.();
-				this.searchResults = [];
-				this.unlisten = await listen<ExplorerItem[]>(`on_search_result-${callNumber}`, (event) => {
-					runInAction(() => {
-						if (event.payload.length === 0) {
-							this.stopSearch();
-							return;
-						}
-						this.searchResults.push(...event.payload);
-					});
-				});
-				emit(`start_processing_search_call-${callNumber}`);
-			});
-		});
+		if (!query) return this.searcherNumber = -1;
+		const searcherNumber: number = yield invoke<number>('create_searcher', { path: this.path, query: this.query });
+		this.searcherNumber = searcherNumber;
+		this.getResultFrom(searcherNumber, query);
 	}
 
-	private stopSearch() {
-		this.unlisten?.();
-		this.unlisten = undefined;
-		invoke('stop_search');
+	*getResultFrom(searcherNumber: number, query: string) {
+		this.searchResults = [];
+		let items: ExplorerItem[] | null = null;
+		while (items?.length !== 0) {
+			items = yield invoke<ExplorerItem[]>('get_search_results', { query });
+			if (searcherNumber !== this.searcherNumber) return;
+			this.searchResults.push(...items!);
+		}
+		this.searcherNumber = -1;
 	}
 }
 

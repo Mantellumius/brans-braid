@@ -1,14 +1,4 @@
 .root {
 	display: flex;
-	flex-direction: column;
-	gap: 32px;
-	height: 100%;
-	flex: 1;
-}
-
-.root__header {
-	margin-right: 16px;
-	display: flex;
-	gap: 16px;
-	width: inherit;
+	height: calc(100% - var(--header-height));
 }

@@ -3,10 +3,11 @@
 	position: absolute;
 	left: 0;
 	bottom: 0;
+	gap: 12px;
 	align-items: center;
 	padding-inline: 8px;
 	width: 100%;
-	height: 20px;
+	height: var(--footer-height);
 	font-size: 12px;
 	background-color: var(--secondary-800);
 }
