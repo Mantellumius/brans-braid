@@ -1,7 +1,8 @@
 .root {
 	display: flex;
 	align-items: center;
-	justify-content: center;
-	background: transparent;
-	border: none;
+	justify-content: flex-start;
+	height: 40px;
+	gap: 8px;
+	padding-inline: 8px;
 }

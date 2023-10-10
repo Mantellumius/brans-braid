@@ -4,21 +4,17 @@ import classNames from 'shared/lib/classNames/classNames';
 import FolderIcon  from 'assets/icons/folder.svg';
 import { Icon } from 'shared/ui/Icon/Icon';
 import { ExplorerItem } from 'widgets/Files';
-import { Button } from 'shared/ui/Button/Button';
 
-export const Folder: FC<Props> = ({ className, item, open }) => {
+export const Folder: FC<Props> = ({ className, item }) => {
 	return (
-		<Button onClick={() => {
-			open.bind(null, item.path)();
-		}} className={classNames(cls.root, {}, [className])}>
-			<Icon icon={FolderIcon}/>
+		<div className={classNames(cls.root, {}, [className])}>
+			<Icon icon={FolderIcon} width={25} height={25}/>
 			{item.name}
-		</Button>
+		</div>
 	);
 };
 
 interface Props {
 	className?: string,
 	item: ExplorerItem,
-	open: (path: string) => void;
 }

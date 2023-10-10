@@ -9,7 +9,10 @@ use std::{
     iter::Flatten,
     sync::{Arc, Mutex},
 };
-use tauri::*;
+use tauri::{
+    api::process::{Command, CommandEvent},
+    *,
+};
 use utils::*;
 
 const BUTCH_SIZE: usize = 10;
@@ -18,10 +21,12 @@ type FolderIterator = Flatten<DirEntryIter<((), ())>>;
 
 fn main() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_context_menu::init())
         .invoke_handler(tauri::generate_handler![
             read_dir,
             create_searcher,
-            get_search_results
+            get_search_results,
+            code
         ])
         .manage(ThreadCount {
             thread_coutner: Arc::new(Mutex::new(0)),
@@ -31,6 +36,16 @@ fn main() {
         })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+}
+
+#[tauri::command]
+fn code<R: Runtime>(
+    path: &str,
+    _app: tauri::AppHandle<R>,
+    _window: tauri::Window<R>,
+) -> Result<()> {
+    execute_command("code", vec![path]);
+    Ok(())
 }
 
 #[tauri::command]
@@ -104,6 +119,13 @@ fn create_folder_iterator(path: String) -> FolderIterator {
         .try_into_iter()
         .unwrap()
         .flatten()
+}
+
+fn execute_command(command: &str, args: Vec<&str>) {
+    Command::new("cmd")
+        .args([vec!["/C", command], args].concat())
+        .spawn()
+        .expect("Failed to execute command");
 }
 
 struct ThreadCount {

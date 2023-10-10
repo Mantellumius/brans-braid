@@ -2,4 +2,10 @@
 	display: flex;
 	align-items: center;
 	padding: 4px;
+	transition: transform .1s ease-in;
+}
+
+.root:focus {
+	outline: none;
+	transform: translate3d(8px, 0, 0) scale(1.1);
 }

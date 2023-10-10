@@ -1,6 +1,7 @@
 .root {
 	text-wrap: nowrap;
 	border-radius: 4px;
+	cursor: pointer;
 }
 
 .root__item {
@@ -12,5 +13,10 @@
 }
 
 .root:hover {
-	background: rgba(255,255,255, .2);
+	background: rgba(255,255,255, .15);
+}
+
+.root:focus {
+	background: rgba(255,255,255, .3);
+	outline: none;
 }

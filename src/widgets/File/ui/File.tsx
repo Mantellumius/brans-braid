@@ -3,22 +3,18 @@ import cls from './File.module.scss';
 import classNames from 'shared/lib/classNames/classNames';
 import FileIcon  from 'assets/icons/file.svg';
 import { Icon } from 'shared/ui/Icon/Icon';
-import { ExplorerItem } from 'widgets/FileExplorer';
-import { Button } from 'shared/ui/Button/Button';
-import { OpenDialogOptions } from '@tauri-apps/api/dialog';
+import { ExplorerItem } from 'widgets/Files';
 
-export const File: FC<Props> = ({ className, item, open }) => {
+export const File: FC<Props> = ({ className, item }) => {
 	return (
-		<Button onClick={() => open({directory: false, multiple: false, title: 'Open file',  defaultPath: item.path })}
-			className={classNames(cls.root, {}, [className])}>
-			<Icon icon={FileIcon} /> 
+		<div className={classNames(cls.root, {}, [className])}>
+			<Icon icon={FileIcon} width={25} height={25}/> 
 			{item.name}
-		</Button>
+		</div>
 	);
 };
 
 interface Props {
 	className?: string,
 	item: ExplorerItem,
-	open: (options?: OpenDialogOptions) => void;
 }

@@ -1,12 +1,15 @@
 import { makeAutoObservable } from 'mobx';
 import ExplorerStore from './FileExplorerStore';
 import { createContext, ReactNode, useContext } from 'react';
+import ContextMenuStore from './ContextMenuStore';
 
 class RootStore {
 	fileExplorerStore: ExplorerStore;
+	contextMenuStore: ContextMenuStore;
 
 	constructor() {
 		this.fileExplorerStore = new ExplorerStore();
+		this.contextMenuStore = new ContextMenuStore();
 		makeAutoObservable(this);
 	}
 }
