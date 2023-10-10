@@ -44,7 +44,7 @@ class ExplorerStore {
 		this.searchResults = [];
 		let items: ExplorerItem[] | null = null;
 		while (items?.length !== 0) {
-			items = yield invoke<ExplorerItem[]>('get_search_results', { query });
+			items = yield invoke<ExplorerItem[]>('get_search_results', { searcherNumber, query });
 			if (searcherNumber !== this.searcherNumber) return;
 			this.searchResults.push(...items!);
 		}

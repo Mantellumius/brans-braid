@@ -1,24 +1,16 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
-use jwalk::{DirEntry, DirEntryIter, WalkDir};
+mod item;
+mod searcher;
+mod utils;
+use item::Item;
+use jwalk::{DirEntryIter, WalkDir};
 use std::{
     fs::{self},
-    iter::{Filter, Flatten, Map},
+    iter::Flatten,
     sync::{Arc, Mutex},
 };
 use tauri::*;
-mod item;
-mod searcher;
-use item::Item;
-
-const INVALID_DIRS: [&str; 7] = [
-    ".git",
-    "venv",
-    ".idea",
-    "node_modules",
-    "Library",
-    "Debug",
-    "postgres",
-];
+use utils::*;
 
 const BUTCH_SIZE: usize = 10;
 
@@ -35,7 +27,7 @@ fn main() {
             thread_coutner: Arc::new(Mutex::new(0)),
         })
         .manage(SearcherState {
-            iterator: Arc::new(Mutex::new(search_dir("".to_string()))),
+            iterator: Arc::new(Mutex::new(create_folder_iterator("".to_string()))),
         })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -60,32 +52,48 @@ fn create_searcher<R: Runtime>(
     _window: tauri::Window<R>,
 ) -> Result<usize> {
     let thread_count = Arc::clone(&searcher_state.thread_coutner.clone());
+    *thread_count.lock().unwrap() += 1;
     let searcher_number = *thread_count.lock().unwrap();
     let mut iterator = iterators.iterator.lock().unwrap();
-    *iterator = search_dir(path.clone());
-    *thread_count.lock().unwrap() += 1;
+    *iterator = create_folder_iterator(path.clone());
     Ok(searcher_number)
 }
 
 #[tauri::command]
 async fn get_search_results<R: Runtime>(
     query: String,
+    searcher_number: usize,
+    searcher_state: State<'_, ThreadCount>,
     iterators: State<'_, SearcherState>,
     _app: tauri::AppHandle<R>,
     _window: tauri::Window<R>,
 ) -> Result<Vec<Item>> {
     let mut iterator = iterators.iterator.lock().unwrap();
     let query = query.clone().to_lowercase();
-    Ok(iterator
-        .by_ref()
-        .filter(move |entry| get_file_name(entry).to_lowercase().contains(&query))
-        .take(BUTCH_SIZE)
-        .map(move |entry| item::Item::from_jwalk(&entry))
-        .collect::<Vec<Item>>())
+    let thread_count = Arc::clone(&searcher_state.thread_coutner.clone());
+    let mut result = Vec::<Item>::new();
+    while *thread_count.lock().unwrap() == searcher_number {
+        let entry = iterator.next();
+        match entry {
+            Some(entry) => {
+                if get_file_name(&entry).to_lowercase().contains(&query) {
+                    result.push(Item::from_jwalk(&entry));
+                    if result.len() >= BUTCH_SIZE {
+                        return Ok(result);
+                    }
+                }
+            }
+            None => {
+                return Ok(Vec::<Item>::new());
+            }
+        }
+    }
+    Ok(Vec::<Item>::new())
 }
 
-fn search_dir(path: String) -> FolderIterator {
+fn create_folder_iterator(path: String) -> FolderIterator {
     WalkDir::new(path)
+        .parallelism(jwalk::Parallelism::RayonNewPool(8))
         .process_read_dir(|_, _, _, children| {
             children.iter_mut().flatten().for_each(|dir_entry| {
                 if !is_valid_filename(get_file_name(dir_entry)) {
@@ -93,16 +101,9 @@ fn search_dir(path: String) -> FolderIterator {
                 }
             });
         })
-        .into_iter()
+        .try_into_iter()
+        .unwrap()
         .flatten()
-}
-
-fn is_valid_filename(filename: &str) -> bool {
-    !INVALID_DIRS.iter().any(|&dir| filename == dir)
-}
-
-fn get_file_name(entry: &jwalk::DirEntry<((), ())>) -> &str {
-    entry.file_name().to_str().unwrap()
 }
 
 struct ThreadCount {
