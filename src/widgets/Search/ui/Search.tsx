@@ -12,6 +12,10 @@ import useDebouncedValue from 'hooks/useDebouncedValue';
 export const Search: FC<Props> = observer(({ className }) => {
 	const { fileExplorerStore } = useRootStore();
 	const [query, debouncedQuery, setQuery] = useDebouncedValue('');
+	const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		e.stopPropagation();
+		setQuery(e.target.value);
+	};
 	useEffect(() => {
 		fileExplorerStore.search(debouncedQuery);
 	},[debouncedQuery, fileExplorerStore]);
@@ -23,7 +27,7 @@ export const Search: FC<Props> = observer(({ className }) => {
 			<Input type="text" 
 				placeholder="Search"
 				value={query} 
-				onChange={e => setQuery(e.target.value)}
+				onChange={onChange}
 				className={cls.root__input}
 			/>
 			{

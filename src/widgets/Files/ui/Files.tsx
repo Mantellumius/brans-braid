@@ -16,7 +16,7 @@ export const Files: FC<Props> = observer(({ className, path, open: openFolder })
 			<ul className={classNames(cls.root__list)}>
 				{
 					explorerStore.items.slice(0, 1000).map((item, i) => 
-						<Item tabIndex={i + 100}
+						<Item autoFocus={i === 0} 
 							key={item.path} 
 							item={item}
 							openFolder={openFolder}

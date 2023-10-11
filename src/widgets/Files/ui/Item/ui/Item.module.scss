@@ -1,7 +1,6 @@
 .root {
 	text-wrap: nowrap;
 	border-radius: 4px;
-	cursor: pointer;
 }
 
 .root__item {
@@ -12,11 +11,20 @@
 	border: none;
 }
 
-.root:hover {
+.root__button {
+	background-color: transparent;
+	height: inherit;
+	width: 100%;
+	outline: none;
+	border: none;
+	cursor: pointer;
+}
+
+.root__button:hover {
 	background: rgba(255,255,255, .15);
 }
 
-.root:focus {
+.root__button:focus {
 	background: rgba(255,255,255, .3);
 	outline: none;
 }

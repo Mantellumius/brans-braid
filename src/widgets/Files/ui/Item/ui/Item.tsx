@@ -7,22 +7,27 @@ import { OpenDialogOptions } from '@tauri-apps/api/dialog';
 import { ExplorerItem } from 'widgets/Files';
 import { useRootStore } from 'stores/RootStore';
 
-export const Item: FC<Props> = ({ className, item, openFolder, openFile, tabIndex }) => {
+export const Item: FC<Props> = ({ className, item, openFolder, openFile, autoFocus }) => {
 	const {contextMenuStore} = useRootStore();
 	const onClick = () => item.is_dir ? openFolder(item.path) : openFile();
 	return (
-		<li tabIndex={tabIndex}
+		<button autoFocus={autoFocus}
 			onContextMenuCapture={() => contextMenuStore.setPath(item.path)} 
 			onFocusCapture={() => contextMenuStore.setPath(item.path)}
 			onKeyDown={(e) => e.key === 'Enter' && onClick()}
-			onClick={onClick}
-			className={classNames(cls.root, {}, [className])}>
-			{
-				item.is_dir ? 
-					<Folder item={item} /> : 
-					<File item={item} />
-			}
-		</li>
+			onClick={e => (e.target as HTMLButtonElement).focus()}
+			onDoubleClick={onClick}
+			className={cls.root__button}>
+			<li className={classNames(cls.root, {}, [className])}>
+			
+				{
+				
+					item.is_dir ? 
+						<Folder item={item} /> : 
+						<File item={item} />
+				}
+			</li>
+		</button>
 	);
 };
 
@@ -31,5 +36,5 @@ interface Props {
 	item: ExplorerItem,
 	openFolder: (path: string) => void;
 	openFile: (options?: OpenDialogOptions) => void;
-	tabIndex: number,
+	autoFocus?: boolean,
 }
