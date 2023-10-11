@@ -11,15 +11,16 @@ const router = createBrowserRouter([
 		element: <Layout />,
 		children:[		
 			{
-				path: 'explorer',
+				path: '',
 				element: <Explorer />
 			}
 		]
 	}
 ]);
 
+const rootStore = new RootStore(router.navigate);
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
-	<StoreProvider store={new RootStore()}>
+	<StoreProvider store={rootStore}>
 		<React.StrictMode>
 			<RouterProvider router={router}/>
 		</React.StrictMode>

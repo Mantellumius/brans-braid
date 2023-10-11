@@ -10,7 +10,7 @@ export const Explorer: FC<Props> = ({ className }) => {
 	return (
 		<main className={classNames(cls.root, {}, [className])}>
 			<Files
-				path={searchParams.get('path') ?? '.'} 
+				path={searchParams.get('path') ?? 'M:\\'} 
 				open={(newPath: string) => setSearchParams({path: newPath})} 
 			/>
 		</main>

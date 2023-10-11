@@ -1,6 +1,8 @@
 import { makeAutoObservable } from 'mobx';
 import { invoke } from '@tauri-apps/api/tauri';
 import { ExplorerItem } from 'widgets/Files';
+import { RefObject } from 'react';
+import HotkeysStore from './HotkeysStore';
 
 class ExplorerStore {
 	path = '';
@@ -8,12 +10,22 @@ class ExplorerStore {
 	currentFolder: ExplorerItem[];
 	searchResults: ExplorerItem[];
 	searcherNumber: number = -1;
+	searchInputRef?: RefObject<HTMLInputElement>;
 
-	constructor() {
+	constructor(private readonly hotkeysStore: HotkeysStore) {
+		this.hotkeysStore = hotkeysStore;
 		this.currentFolder = [];
 		this.searchResults = [];
 		this.read('C:\\');
+		this.subscribe();
 		makeAutoObservable(this);
+	}
+
+	subscribe() {
+		this.hotkeysStore.setAction('ctrl+f', (e) => {
+			e.preventDefault();
+			this.searchInputRef?.current?.focus();
+		});
 	}
 
 	get items() {
@@ -32,15 +44,17 @@ class ExplorerStore {
 		this.currentFolder = yield invoke<ExplorerItem[]>('read_dir', { path });
 	}
 
-	*search(query: string) {
-		this.query = query;
-		if (!query) return this.searcherNumber = -1;
-		const searcherNumber: number = yield invoke<number>('create_searcher', { path: this.path, query: this.query });
-		this.searcherNumber = searcherNumber;
-		this.getResultFrom(searcherNumber, query);
+	*search() {
+		if (!this.query) {
+			this.searcherNumber = -1;
+			this.searchResults = [];
+			return;
+		}
+		this.searcherNumber = yield invoke('create_searcher', { path: this.path, query: this.query, depth: 1 });
+		this.processQuery(this.searcherNumber, this.query);
 	}
 
-	*getResultFrom(searcherNumber: number, query: string) {
+	*processQuery(searcherNumber: number, query: string) {
 		this.searchResults = [];
 		let items: ExplorerItem[] | null = null;
 		while (items?.length !== 0) {

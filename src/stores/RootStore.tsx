@@ -4,6 +4,7 @@ import { createContext, ReactNode, useContext } from 'react';
 import ContextMenuStore from './ContextMenuStore';
 import ExplorerNavigationStore from './ExplorerNavigationStore';
 import HotkeysStore from './HotkeysStore';
+import { NavigateFunction } from 'react-router-dom';
 
 class RootStore {
 	fileExplorerStore: ExplorerStore;
@@ -11,11 +12,12 @@ class RootStore {
 	explorerNavigationStore: ExplorerNavigationStore;
 	hotkeysStore: HotkeysStore;
 
-	constructor() {
-		this.fileExplorerStore = new ExplorerStore();
-		this.contextMenuStore = new ContextMenuStore();
+	constructor(navigate: NavigateFunction) {
 		this.hotkeysStore = new HotkeysStore();
+		this.fileExplorerStore = new ExplorerStore(this.hotkeysStore);
+		this.contextMenuStore = new ContextMenuStore();
 		this.explorerNavigationStore = new ExplorerNavigationStore(this.hotkeysStore);
+		this.explorerNavigationStore.navigate = navigate;
 		makeAutoObservable(this);
 	}
 }

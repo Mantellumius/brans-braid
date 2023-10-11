@@ -4,12 +4,17 @@ import HotkeysStore from './HotkeysStore';
 class ExplorerNavigationStore {
 	actionMultiplier = '';
 	navigate?: (dir: number) => void;
-
+	selectedFolder?: Element;
 
 	constructor(private readonly hotkeysStore: HotkeysStore) {
 		this.hotkeysStore = hotkeysStore;
 		this.buildActions();
 		makeAutoObservable(this);
+	}
+
+	get selectedIndex() {
+		const numStr = this.selectedFolder?.getAttribute?.('data-index');
+		return Number.isNaN(Number(numStr)) ? -1 : Number(numStr);
 	}
 
 	private buildActions() {
@@ -18,7 +23,7 @@ class ExplorerNavigationStore {
 		this.hotkeysStore.setAction('k', () => this.multiplyFolderMove('up'));
 		this.hotkeysStore.setAction('l', () => this.navigate?.(this.consumeMultiplier()));
 		for (let i = 0; i < 10; i++) {
-			this.hotkeysStore.actions.set(i.toString(), () => this.actionMultiplier += i.toString());
+			this.hotkeysStore.setAction(i.toString(), () => this.actionMultiplier += i.toString());
 		}
 	}
 
@@ -36,6 +41,7 @@ class ExplorerNavigationStore {
 			toFocus = action(toFocus) as HTMLButtonElement;
 		}
 		toFocus.focus?.();
+		this.selectedFolder = toFocus;
 	}
 }
 export default ExplorerNavigationStore;

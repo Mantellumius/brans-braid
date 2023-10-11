@@ -1,30 +1,33 @@
 .root {
 	text-wrap: nowrap;
 	border-radius: 4px;
-}
-
-.root__item {
-	display: flex;
-	gap: 8px;
-	border-radius: inherit;
 	background-color: transparent;
-	border: none;
-}
-
-.root__button {
-	background-color: transparent;
-	height: inherit;
+	padding-inline: 16px;
 	width: 100%;
 	outline: none;
 	border: none;
 	cursor: pointer;
+	height: 40px;
 }
 
-.root__button:hover {
+.root__item {
+	display: flex;
+	border-radius: inherit;
+	align-items: center;
+	background-color: transparent;
+	border: none;
+}
+
+.root__item__num {
+	text-align: start;
+	width: 25px;
+}
+
+.root:hover {
 	background: rgba(255,255,255, .15);
 }
 
-.root__button:focus {
+.root:focus {
 	background: rgba(255,255,255, .3);
 	outline: none;
 }

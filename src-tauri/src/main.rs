@@ -9,10 +9,7 @@ use std::{
     iter::Flatten,
     sync::{Arc, Mutex},
 };
-use tauri::{
-    api::process::{Command, CommandEvent},
-    *,
-};
+use tauri::{api::process::Command, *};
 use utils::*;
 
 const BUTCH_SIZE: usize = 10;
@@ -32,7 +29,7 @@ fn main() {
             thread_coutner: Arc::new(Mutex::new(0)),
         })
         .manage(SearcherState {
-            iterator: Arc::new(Mutex::new(create_folder_iterator("".to_string()))),
+            iterator: Arc::new(Mutex::new(create_folder_iterator("".to_string(), 1))),
         })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -60,8 +57,9 @@ fn read_dir(path: &str) -> Result<Vec<serde_json::Value>> {
 
 #[tauri::command]
 fn create_searcher<R: Runtime>(
-    iterators: State<'_, SearcherState>,
     path: String,
+    depth: usize,
+    iterators: State<'_, SearcherState>,
     searcher_state: State<'_, ThreadCount>,
     _app: tauri::AppHandle<R>,
     _window: tauri::Window<R>,
@@ -70,7 +68,7 @@ fn create_searcher<R: Runtime>(
     *thread_count.lock().unwrap() += 1;
     let searcher_number = *thread_count.lock().unwrap();
     let mut iterator = iterators.iterator.lock().unwrap();
-    *iterator = create_folder_iterator(path.clone());
+    *iterator = create_folder_iterator(path.clone(), depth);
     Ok(searcher_number)
 }
 
@@ -99,16 +97,18 @@ async fn get_search_results<R: Runtime>(
                 }
             }
             None => {
-                return Ok(Vec::<Item>::new());
+                return Ok(result);
             }
         }
     }
     Ok(Vec::<Item>::new())
 }
 
-fn create_folder_iterator(path: String) -> FolderIterator {
+fn create_folder_iterator(path: String, depth: usize) -> FolderIterator {
     WalkDir::new(path)
         .parallelism(jwalk::Parallelism::RayonNewPool(8))
+        .min_depth(1)
+        .max_depth(depth)
         .process_read_dir(|_, _, _, children| {
             children.iter_mut().flatten().for_each(|dir_entry| {
                 if !is_valid_filename(get_file_name(dir_entry)) {

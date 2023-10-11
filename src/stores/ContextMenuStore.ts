@@ -44,7 +44,6 @@ class ContextMenuStore {
 	}
 
 	openInVsCode() {
-		console.log(this.path);
 		invoke('code', { path: this.path });
 	}
 }
