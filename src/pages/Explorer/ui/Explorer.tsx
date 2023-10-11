@@ -3,6 +3,7 @@ import cls from './Explorer.module.scss';
 import classNames from 'shared/lib/classNames/classNames';
 import { Files } from 'widgets/Files';
 import { useSearchParams } from 'react-router-dom';
+import { open } from '@tauri-apps/api/shell';
 
 export const Explorer: FC<Props> = ({ className }) => {
 	const [searchParams, setSearchParams] = useSearchParams();
@@ -13,7 +14,8 @@ export const Explorer: FC<Props> = ({ className }) => {
 		<main className={classNames(cls.root, {}, [className])}>
 			<Files
 				path={searchParams.get('path')!} 
-				open={(newPath: string) => setSearchParams({path: newPath})} 
+				openFolder={(newPath: string) => setSearchParams({path: newPath})}
+				openFile={open} 
 			/>
 		</main>
 	);

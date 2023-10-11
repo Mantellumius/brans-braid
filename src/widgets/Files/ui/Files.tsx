@@ -4,9 +4,8 @@ import classNames from 'shared/lib/classNames/classNames';
 import { Item } from './Item';
 import { useRootStore } from 'stores/RootStore';
 import { observer } from 'mobx-react';
-import { open as openFile } from '@tauri-apps/api/shell';
 
-export const Files: FC<Props> = observer(({ className, path, open: openFolder }) => {
+export const Files: FC<Props> = observer(({ className, path, openFolder, openFile }) => {
 	const { fileExplorerStore } = useRootStore();
 	useEffect(() => {
 		fileExplorerStore.read(path);
@@ -15,7 +14,7 @@ export const Files: FC<Props> = observer(({ className, path, open: openFolder })
 		<div className={classNames(cls.root, {}, [className])}>
 			<ul className={classNames(cls.root__list)}>
 				{
-					fileExplorerStore.items.slice(0, 1000).map((item, i) => 
+					fileExplorerStore.items.slice(0, 999).map((item, i) => 
 						<Item autoFocus={i === 0 && !fileExplorerStore.query} 
 							key={item.path} 
 							index={i}
@@ -31,6 +30,7 @@ export const Files: FC<Props> = observer(({ className, path, open: openFolder })
 
 interface Props {
 	className?: string;
-	open: (path: string) => void;
+	openFolder: (path: string) => void;
+	openFile: (path: string, openWith?: string) => void
 	path: string;
 }
