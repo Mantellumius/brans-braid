@@ -3,14 +3,13 @@ import cls from './Item.module.scss';
 import classNames from 'shared/lib/classNames/classNames';
 import { Folder } from 'widgets/Folder';
 import { File } from 'widgets/File';
-import { OpenDialogOptions } from '@tauri-apps/api/dialog';
 import { ExplorerItem } from 'widgets/Files';
 import { useRootStore } from 'stores/RootStore';
 import { observer } from 'mobx-react';
 
 export const Item: FC<Props> = observer(({ className, item, openFolder, openFile, autoFocus, index }) => {
 	const {contextMenuStore, explorerNavigationStore } = useRootStore();
-	const onClick = () => item.is_dir ? openFolder(item.path) : openFile();
+	const onClick = () => item.is_dir ? openFolder(item.path) : openFile(item.path);
 	const num = useMemo(() => {
 		if (explorerNavigationStore.selectedIndex === -1) return '';
 		if (explorerNavigationStore.selectedIndex === index) return `${index + 1}`;
@@ -42,7 +41,7 @@ interface Props {
 	className?: string,
 	item: ExplorerItem,
 	openFolder: (path: string) => void;
-	openFile: (options?: OpenDialogOptions) => void;
+	openFile: (path: string, openWith?: string) => void;
 	autoFocus?: boolean,
 	index?: number,
 }

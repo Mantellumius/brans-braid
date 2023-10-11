@@ -13,8 +13,8 @@
 	"tauri": {
 		"allowlist": {
 			"all": false,
-			"dialog": {
-				"open": true
+			"shell": {
+				"open": "."
 			},
 			"globalShortcut": {
 				"all": true

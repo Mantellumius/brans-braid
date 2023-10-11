@@ -4,7 +4,7 @@ import classNames from 'shared/lib/classNames/classNames';
 import { Item } from './Item';
 import { useRootStore } from 'stores/RootStore';
 import { observer } from 'mobx-react';
-import { open as openFile } from '@tauri-apps/api/dialog';
+import { open as openFile } from '@tauri-apps/api/shell';
 
 export const Files: FC<Props> = observer(({ className, path, open: openFolder }) => {
 	const { fileExplorerStore } = useRootStore();

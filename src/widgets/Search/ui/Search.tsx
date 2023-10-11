@@ -22,7 +22,11 @@ export const Search: FC<Props> = observer(({ className }) => {
 				type="text" 
 				placeholder="Search"
 				value={fileExplorerStore.query} 
-				onChange={(e) => fileExplorerStore.query = e.target.value}
+				onChange={(e) => {
+					e.preventDefault();
+					e.stopPropagation();
+					fileExplorerStore.query = e.target.value;
+				}}
 				className={cls.root__input}
 			/>
 			{

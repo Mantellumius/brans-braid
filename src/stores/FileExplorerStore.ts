@@ -5,6 +5,7 @@ import { RefObject } from 'react';
 import HotkeysStore from './HotkeysStore';
 
 class ExplorerStore {
+	private searchDepth: 'one' | 'max' = 'one';
 	path = '';
 	query = '';
 	currentFolder: ExplorerItem[];
@@ -24,6 +25,12 @@ class ExplorerStore {
 	subscribe() {
 		this.hotkeysStore.setAction('ctrl+f', (e) => {
 			e.preventDefault();
+			this.searchDepth = 'one';
+			this.searchInputRef?.current?.focus();
+		});
+		this.hotkeysStore.setAction('ctrl+shift+f', (e) => {
+			e.preventDefault();
+			this.searchDepth = 'max';
 			this.searchInputRef?.current?.focus();
 		});
 	}
@@ -35,6 +42,10 @@ class ExplorerStore {
 
 	get isSearching() {
 		return this.searcherNumber >= 0;
+	}
+
+	get depthToNumber() {
+		return this.searchDepth === 'one' ? 1 : Number.MAX_SAFE_INTEGER;
 	}
 
 	*read(path: string) {
@@ -50,7 +61,11 @@ class ExplorerStore {
 			this.searchResults = [];
 			return;
 		}
-		this.searcherNumber = yield invoke('create_searcher', { path: this.path, query: this.query, depth: 1 });
+		this.searcherNumber = yield invoke('create_searcher', {
+			path: this.path,
+			query: this.query,
+			depth: this.depthToNumber,
+		});
 		this.processQuery(this.searcherNumber, this.query);
 	}
 

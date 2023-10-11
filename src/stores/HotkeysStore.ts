@@ -10,10 +10,11 @@ class HotkeysStore {
 	}
 
 	private subscribe() {
-		document.addEventListener('keydown', this.handleKeyDown.bind(this));
+		window.addEventListener('keydown', this.handleKeyDown.bind(this));
 	}
 
 	private handleKeyDown(e: KeyboardEvent) {
+		if ((e.target as Element).tagName === 'INPUT') return;
 		this.getAction(e)?.(e);
 	}
 
@@ -22,7 +23,7 @@ class HotkeysStore {
 	}
 
 	getAction(e: KeyboardEvent) {
-		const key = [(e.ctrlKey && 'ctrl'), (e.altKey && 'alt'), (e.shiftKey && 'shift'), e.key]
+		const key = [(e.ctrlKey && 'ctrl'), (e.altKey && 'alt'), (e.shiftKey && 'shift'), e.key.toLowerCase()]
 			.filter(Boolean)
 			.join('+');
 		if (!this.actions.has)
