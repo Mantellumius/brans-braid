@@ -1,16 +1,17 @@
 import { FC } from 'react';
 import cls from './Path.module.scss';
 import classNames from 'shared/lib/classNames/classNames';
-import { useSearchParams } from 'react-router-dom';
+import { useRootStore } from 'stores/RootStore';
+import { observer } from 'mobx-react';
 
-export const Path: FC<Props> = ({ className }) => {
-	const [searchParams] = useSearchParams();
+export const Path: FC<Props> = observer(({ className }) => {
+	const {explorerStore} = useRootStore();
 	return (
 		<div className={classNames(cls.root, {}, [className])}>
-			{searchParams.get('path')}
+			{explorerStore.path}
 		</div>
 	);
-};
+});
 
 interface Props {
 	className?: string

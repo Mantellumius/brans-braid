@@ -1,23 +1,26 @@
 import { makeAutoObservable } from 'mobx';
-import ExplorerStore from './FileExplorerStore';
+import ExplorerStore from './ExplorerStore';
 import { createContext, ReactNode, useContext } from 'react';
 import ContextMenuStore from './ContextMenuStore';
-import ExplorerNavigationStore from './ExplorerNavigationStore';
+import NavigationStore from './NavigationStore';
 import HotkeysStore from './HotkeysStore';
-import { NavigateFunction } from 'react-router-dom';
+import SearchStore from './SearchStore';
 
 class RootStore {
-	fileExplorerStore: ExplorerStore;
+	explorerStore: ExplorerStore;
 	contextMenuStore: ContextMenuStore;
-	explorerNavigationStore: ExplorerNavigationStore;
+	navigationStore: NavigationStore;
 	hotkeysStore: HotkeysStore;
+	searchStore: SearchStore;
 
-	constructor(navigate: NavigateFunction) {
+	constructor() {
 		this.hotkeysStore = new HotkeysStore();
-		this.fileExplorerStore = new ExplorerStore(this.hotkeysStore);
-		this.contextMenuStore = new ContextMenuStore();
-		this.explorerNavigationStore = new ExplorerNavigationStore(this.hotkeysStore);
-		this.explorerNavigationStore.navigate = navigate;
+		this.navigationStore = new NavigationStore(this.hotkeysStore, () => this.explorerStore);
+		this.contextMenuStore = new ContextMenuStore(() => this.explorerStore);
+		this.searchStore = new SearchStore(this.hotkeysStore, () => this.explorerStore);
+		this.explorerStore = new ExplorerStore(() => this.hotkeysStore, 
+			() => this.searchStore, 
+			() => this.navigationStore);
 		makeAutoObservable(this);
 	}
 }

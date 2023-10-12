@@ -6,7 +6,6 @@ import { useNavigate } from 'react-router-dom';
 
 export const Navigtaion: FC<Props> = ({ className }) => {
 	const navigate = useNavigate();
-
 	return (
 		<div className={classNames(cls.root, {}, [className])}>
 			<Button onClick={navigate.bind(null, -1)} 

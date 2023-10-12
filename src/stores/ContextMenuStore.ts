@@ -1,11 +1,12 @@
 import { showMenu } from 'tauri-plugin-context-menu';
 import { makeAutoObservable } from 'mobx';
 import { invoke } from '@tauri-apps/api';
-import { register } from '@tauri-apps/api/globalShortcut';
+import { register, isRegistered } from '@tauri-apps/api/globalShortcut';
+import ExplorerStore from './ExplorerStore';
 
 class ContextMenuStore {
-	path = '';
-	constructor() {
+	constructor(private readonly explorerStore: () => ExplorerStore) {
+		this.explorerStore = explorerStore;
 		makeAutoObservable(this);
 		this.subscribe();
 		this.register();
@@ -16,9 +17,10 @@ class ContextMenuStore {
 	}
 
 	async register() {
-		await register('Control+B', () => {
-			this.openInVsCode();
-		});
+		if (!await isRegistered('Control+Alt+O'))
+			await register('Control+Alt+O', async () => {
+				await this.openInVsCode();
+			});
 	}
 
 	private onContextMenuOpen(e: MouseEvent) {
@@ -29,7 +31,7 @@ class ContextMenuStore {
 					{
 						label: 'Open in VSCode',
 						event: async () => {
-							this.openInVsCode();
+							await this.openInVsCode();
 						},
 						payload: e,
 						shortcut: 'ctrl+B'
@@ -39,12 +41,8 @@ class ContextMenuStore {
 		);
 	}
 
-	setPath(path: string) {
-		this.path = path;
-	}
-
 	openInVsCode() {
-		invoke('code', { path: this.path });
+		return invoke('code', { path: this.explorerStore().selectedItem?.path });
 	}
 }
 

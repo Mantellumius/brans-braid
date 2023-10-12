@@ -10,27 +10,27 @@ import { Loader } from 'shared/ui/Loader/Loader';
 import useDebouncedFunction from 'hooks/useDebouncedFunction';
 
 export const Search: FC<Props> = observer(({ className }) => {
-	const { fileExplorerStore } = useRootStore();
+	const { searchStore } = useRootStore();
 	const inputRef = useRef<HTMLInputElement>(null);
-	const debouncedSearch = useDebouncedFunction(fileExplorerStore.search.bind(fileExplorerStore), 250);
-	useEffect(() => { fileExplorerStore.searchInputRef = inputRef; },[inputRef]);
-	useEffect(() => { debouncedSearch(); }, [fileExplorerStore.query]);
+	const debouncedSearch = useDebouncedFunction(searchStore.search.bind(searchStore), 250);
+	useEffect(() => { searchStore.inputRef = inputRef; },[inputRef]);
+	useEffect(() => { debouncedSearch(); }, [searchStore.query]);
 	return (
 		<div className={classNames(cls.root, {}, [className])}>
 			<Input tabIndex={-1}
 				ref={inputRef}
 				type="text" 
 				placeholder="Search"
-				value={fileExplorerStore.query} 
+				value={searchStore.query} 
 				onChange={(e) => {
 					e.preventDefault();
 					e.stopPropagation();
-					fileExplorerStore.query = e.target.value;
+					searchStore.setQuery = e.target.value;
 				}}
 				className={cls.root__input}
 			/>
 			{
-				fileExplorerStore.isSearching ? 
+				searchStore.isSearching ? 
 					<Loader/> :
 					<Icon icon={SearchIcon}/>
 			}
