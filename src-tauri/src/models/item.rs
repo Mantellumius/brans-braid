@@ -1,6 +1,8 @@
 use std::{ffi::OsStr, fs};
+use ts_rs::TS;
 
-#[derive(Debug, serde::Serialize)]
+#[derive(Debug, serde::Serialize, TS)]
+#[ts(export, export_to = "../src/bindings/")]
 pub struct Item {
     pub path: String,
     pub name: String,

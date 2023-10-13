@@ -3,7 +3,7 @@ import cls from './Item.module.scss';
 import classNames from 'shared/lib/classNames/classNames';
 import { Folder } from 'widgets/Folder';
 import { File } from 'widgets/File';
-import { ExplorerItem } from 'widgets/Files';
+import { Item as ExplorerItem } from 'bindings/';
 import { useRootStore } from 'stores/RootStore';
 import { observer } from 'mobx-react';
 

@@ -9,6 +9,7 @@ export default defineConfig(async ({ mode }) => ({
   plugins: [react()],
   resolve: {
     alias: {
+      "bindings": path.resolve(__dirname, "./src/bindings"),
       "hooks": path.resolve(__dirname, "./src/hooks"),
       "pages": path.resolve(__dirname, "./src/pages"),
       "stores": path.resolve(__dirname, "./src/stores"),

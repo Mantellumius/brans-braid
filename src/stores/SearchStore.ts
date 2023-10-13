@@ -1,13 +1,14 @@
 import { makeAutoObservable } from 'mobx';
 import { RefObject } from 'react';
-import { ExplorerItem } from 'widgets/Files';
+import { Item } from 'bindings/';
 import HotkeysStore from './HotkeysStore';
-import { invoke } from '@tauri-apps/api/tauri';
+import { ipcInvoke } from 'shared/lib/ipcInvoke/ipcInvoke';
+import { IpcSimpleResult } from 'bindings/IpcSimpleResult';
 
 class SearchStore {
 	private depth: 'one' | 'max' = 'one';
 	inputRef?: RefObject<HTMLInputElement>;
-	result: ExplorerItem[];
+	result: Item[];
 	queryNumber: number = -1;
 	query = '';
 
@@ -49,19 +50,21 @@ class SearchStore {
 			this.result = [];
 			return;
 		}
-		this.queryNumber = yield invoke('create_searcher', {
+		const response: IpcSimpleResult<number> = yield ipcInvoke<number>('create_searcher', {
 			path,
 			query: this.query,
 			depth: this.depthToNumber,
 		});
+		this.queryNumber = response.data;
 		this.processQuery(this.queryNumber, this.query);
 	}
 
 	*processQuery(searcherNumber: number, query: string) {
 		this.result = [];
-		let items: ExplorerItem[] | null = null;
+		let items: Item[] | null = null;
 		while (items?.length !== 0) {
-			items = yield invoke<ExplorerItem[]>('get_search_results', { searcherNumber, query });
+			const response: IpcSimpleResult<Item[]> = yield ipcInvoke<Item[]>('get_search_results', { searcherNumber, query });
+			items = response.data;
 			if (searcherNumber !== this.queryNumber) return;
 			this.result.push(...items!);
 		}

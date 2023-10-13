@@ -1,22 +1,17 @@
 import { makeAutoObservable, autorun } from 'mobx';
-import { invoke } from '@tauri-apps/api/tauri';
-import { ExplorerItem } from 'widgets/Files';
 import SearchStore from './SearchStore';
 import HotkeysStore from './HotkeysStore';
 import clamp from 'shared/lib/clamp/clamp';
 import { open } from '@tauri-apps/api/shell';
-
-interface History {
-	redo: string[],
-	undo: string[];
-}
+import { Item } from 'bindings/';
+import { ipcInvoke } from 'shared/lib/ipcInvoke/ipcInvoke';
 
 class ExplorerStore {
-	currentFolder: ExplorerItem[];
+	currentFolder: Item[];
 	actionMultiplier = '';
 	navigate?: (dir: number) => void;
 	selectedIndex: number = 0;
-	history: History;
+	history: { redo: string[], undo: string[]; };
 
 	constructor(
 		private readonly hotkeysStore: HotkeysStore,
@@ -32,7 +27,8 @@ class ExplorerStore {
 			this.searchStore.result = [];
 			this.searchStore.query = '';
 			this.currentFolder = [];
-			this.currentFolder = await invoke<ExplorerItem[]>('read_dir', { path: this.path });
+			const response = await ipcInvoke<Item[]>('read_dir', { path: this.path });
+			this.currentFolder = response.data;
 		});
 	}
 
@@ -80,7 +76,7 @@ class ExplorerStore {
 
 	private subscribe() {
 		this.hotkeysStore.setAction('enter', () => this.openSelected());
-		this.hotkeysStore.setAction('ctrl+r', () => this.reload());
+		// this.hotkeysStore.setAction('ctrl+r', () => this.reload());
 		this.hotkeysStore.setAction('f5', () => this.reload());
 		this.hotkeysStore.setAction('h', () => this.previousFolder(this.consumeMultiplier()));
 		this.hotkeysStore.setAction('j', () => this.moveDown(this.consumeMultiplier()));

@@ -23,6 +23,9 @@
     "emitDecoratorMetadata": true,
     "baseUrl": "./src",
     "paths": {
+      "bindings":[
+        "/bindings"
+      ],
       "hooks":[
         "/hooks"
       ],

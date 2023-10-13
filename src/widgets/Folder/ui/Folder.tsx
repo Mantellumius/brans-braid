@@ -3,7 +3,7 @@ import cls from './Folder.module.scss';
 import classNames from 'shared/lib/classNames/classNames';
 import FolderIcon  from 'assets/icons/folder.svg';
 import { Icon } from 'shared/ui/Icon/Icon';
-import { ExplorerItem } from 'widgets/Files';
+import { Item } from 'bindings/';
 
 export const Folder: FC<Props> = ({ className, item }) => {
 	return (
@@ -16,5 +16,5 @@ export const Folder: FC<Props> = ({ className, item }) => {
 
 interface Props {
 	className?: string,
-	item: ExplorerItem,
+	item: Item,
 }

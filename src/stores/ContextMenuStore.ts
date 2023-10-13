@@ -1,8 +1,8 @@
 import { showMenu } from 'tauri-plugin-context-menu';
 import { makeAutoObservable } from 'mobx';
-import { invoke } from '@tauri-apps/api';
 import { register, isRegistered } from '@tauri-apps/api/globalShortcut';
 import ExplorerStore from './ExplorerStore';
+import { ipcInvoke } from 'shared/lib/ipcInvoke/ipcInvoke';
 
 class ContextMenuStore {
 	constructor(private readonly explorerStore: ExplorerStore) {
@@ -42,7 +42,7 @@ class ContextMenuStore {
 	}
 
 	openInVsCode() {
-		return invoke('code', { path: this.explorerStore.selectedItem?.path });
+		return ipcInvoke('code', { path: this.explorerStore.selectedItem?.path });
 	}
 }
 

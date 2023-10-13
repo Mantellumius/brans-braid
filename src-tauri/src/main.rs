@@ -1,17 +1,22 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
-mod item;
-mod searcher;
+mod database;
+mod error;
+mod ipc;
+mod models;
+mod state;
 mod utils;
-use item::Item;
+pub use error::{Error, Result};
+use ipc::*;
 use jwalk::{DirEntryIter, WalkDir};
+use models::*;
+use state::DbConnection;
 use std::{
     fs::{self},
     iter::Flatten,
     sync::{Arc, Mutex},
 };
-use tauri::{api::process::Command, *};
+use tauri::{api::process::Command, Manager, Runtime, State};
 use utils::*;
-
 const BUTCH_SIZE: usize = 10;
 
 type FolderIterator = Flatten<DirEntryIter<((), ())>>;
@@ -23,13 +28,42 @@ fn main() {
             read_dir,
             create_searcher,
             get_search_results,
-            code
+            code,
+            // Categories
+            create_category,
+            get_categories,
+            get_category,
+            delete_category,
+            update_category,
+            // Folders
+            create_folder,
+            get_folders,
+            get_folder,
+            delete_folder,
+            update_folder,
+            // Tags
+            create_tag,
+            get_tags,
+            get_tag,
+            delete_tag,
+            update_tag,
         ])
         .manage(ThreadCount {
             thread_coutner: Arc::new(Mutex::new(0)),
         })
         .manage(SearcherState {
             iterator: Arc::new(Mutex::new(create_folder_iterator("".to_string(), 1))),
+        })
+        .manage(DbConnection {
+            db: Default::default(),
+        })
+        .setup(|app| {
+            let handle = app.handle();
+            let app_state: State<DbConnection> = handle.state();
+            let db =
+                database::initialize_database(&handle).expect("Database initialize should succeed");
+            *app_state.db.lock().unwrap() = Some(db);
+            Ok(())
         })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -40,18 +74,19 @@ fn code<R: Runtime>(
     path: &str,
     _app: tauri::AppHandle<R>,
     _window: tauri::Window<R>,
-) -> Result<()> {
+) -> IpcResponse<()> {
     execute_command("code", vec![path]);
-    Ok(())
+    Ok(()).into()
 }
 
 #[tauri::command]
-fn read_dir(path: &str) -> Result<Vec<serde_json::Value>> {
+fn read_dir(path: &str) -> IpcResponse<Vec<serde_json::Value>> {
     match fs::read_dir(path) {
         Ok(folders) => Ok(folders
             .map(|entry| serde_json::to_value(Item::from(&entry.unwrap())).unwrap())
-            .collect()),
-        Err(e) => Err(Error::Io(e)),
+            .collect())
+        .into(),
+        Err(e) => Err(Error::IO(e)).into(),
     }
 }
 
@@ -59,28 +94,28 @@ fn read_dir(path: &str) -> Result<Vec<serde_json::Value>> {
 fn create_searcher<R: Runtime>(
     path: String,
     depth: usize,
-    iterators: State<'_, SearcherState>,
-    searcher_state: State<'_, ThreadCount>,
+    iterators: State<SearcherState>,
+    searcher_state: State<ThreadCount>,
     _app: tauri::AppHandle<R>,
     _window: tauri::Window<R>,
-) -> Result<usize> {
+) -> IpcResponse<usize> {
     let thread_count = Arc::clone(&searcher_state.thread_coutner.clone());
     *thread_count.lock().unwrap() += 1;
     let searcher_number = *thread_count.lock().unwrap();
     let mut iterator = iterators.iterator.lock().unwrap();
     *iterator = create_folder_iterator(path.clone(), depth);
-    Ok(searcher_number)
+    Ok(searcher_number).into()
 }
 
-#[tauri::command]
-async fn get_search_results<R: Runtime>(
+#[tauri::command(async)]
+fn get_search_results<R: Runtime>(
     query: String,
     searcher_number: usize,
     searcher_state: State<'_, ThreadCount>,
     iterators: State<'_, SearcherState>,
     _app: tauri::AppHandle<R>,
     _window: tauri::Window<R>,
-) -> Result<Vec<Item>> {
+) -> IpcResponse<Vec<Item>> {
     let mut iterator = iterators.iterator.lock().unwrap();
     let query = query.clone().to_lowercase();
     let thread_count = Arc::clone(&searcher_state.thread_coutner.clone());
@@ -92,16 +127,16 @@ async fn get_search_results<R: Runtime>(
                 if get_file_name(&entry).to_lowercase().contains(&query) {
                     result.push(Item::from_jwalk(&entry));
                     if result.len() >= BUTCH_SIZE {
-                        return Ok(result);
+                        return Ok(result).into();
                     }
                 }
             }
             None => {
-                return Ok(result);
+                return Ok(result).into();
             }
         }
     }
-    Ok(Vec::<Item>::new())
+    Ok(Vec::<Item>::new()).into()
 }
 
 fn create_folder_iterator(path: String, depth: usize) -> FolderIterator {
