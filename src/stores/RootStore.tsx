@@ -2,25 +2,20 @@ import { makeAutoObservable } from 'mobx';
 import ExplorerStore from './ExplorerStore';
 import { createContext, ReactNode, useContext } from 'react';
 import ContextMenuStore from './ContextMenuStore';
-import NavigationStore from './NavigationStore';
 import HotkeysStore from './HotkeysStore';
 import SearchStore from './SearchStore';
 
 class RootStore {
 	explorerStore: ExplorerStore;
 	contextMenuStore: ContextMenuStore;
-	navigationStore: NavigationStore;
 	hotkeysStore: HotkeysStore;
 	searchStore: SearchStore;
 
 	constructor() {
 		this.hotkeysStore = new HotkeysStore();
-		this.navigationStore = new NavigationStore(this.hotkeysStore, () => this.explorerStore);
-		this.contextMenuStore = new ContextMenuStore(() => this.explorerStore);
-		this.searchStore = new SearchStore(this.hotkeysStore, () => this.explorerStore);
-		this.explorerStore = new ExplorerStore(() => this.hotkeysStore, 
-			() => this.searchStore, 
-			() => this.navigationStore);
+		this.searchStore = new SearchStore(this.hotkeysStore);
+		this.explorerStore = new ExplorerStore(this.hotkeysStore, this.searchStore);
+		this.contextMenuStore = new ContextMenuStore(this.explorerStore);
 		makeAutoObservable(this);
 	}
 }

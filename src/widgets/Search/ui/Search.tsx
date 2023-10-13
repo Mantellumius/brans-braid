@@ -10,11 +10,14 @@ import { Loader } from 'shared/ui/Loader/Loader';
 import useDebouncedFunction from 'hooks/useDebouncedFunction';
 
 export const Search: FC<Props> = observer(({ className }) => {
-	const { searchStore } = useRootStore();
+	const { searchStore, explorerStore } = useRootStore();
 	const inputRef = useRef<HTMLInputElement>(null);
-	const debouncedSearch = useDebouncedFunction(searchStore.search.bind(searchStore), 250);
+	const debouncedSearch = useDebouncedFunction(
+		searchStore.search.bind(searchStore),
+		250
+	);
 	useEffect(() => { searchStore.inputRef = inputRef; },[inputRef]);
-	useEffect(() => { debouncedSearch(); }, [searchStore.query]);
+	useEffect(() => { debouncedSearch(explorerStore.path); }, [searchStore.query]);
 	return (
 		<div className={classNames(cls.root, {}, [className])}>
 			<Input tabIndex={-1}

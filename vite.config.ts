@@ -2,7 +2,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "node:path";
 
-const generateScopedNameDev = (name, filename, css) => `${filename.split('/').at(-1).split('.')[0]}-${name}`;
+const generateScopedNameDev = (name, filename) => `${filename.split('/').at(-1).split('.')[0]}-${name}`;
 
 
 export default defineConfig(async ({ mode }) => ({

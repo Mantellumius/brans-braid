@@ -15,20 +15,18 @@ class HotkeysStore {
 
 	private handleKeyDown(e: KeyboardEvent) {
 		if ((e.target as Element).tagName === 'INPUT') return;
-		this.getAction(e)?.(e);
+		const key = [(e.ctrlKey && 'ctrl'), (e.altKey && 'alt'), (e.shiftKey && 'shift'), e.key.toLowerCase()]
+			.filter(Boolean)
+			.join('+');
+		const action = this.actions.get(key);
+		if (action) {
+			e.preventDefault();
+			action(e);
+		}
 	}
 
 	setAction(key: string, action: (e: KeyboardEvent) => void) {
 		this.actions.set(key, action);
-	}
-
-	getAction(e: KeyboardEvent) {
-		const key = [(e.ctrlKey && 'ctrl'), (e.altKey && 'alt'), (e.shiftKey && 'shift'), e.key.toLowerCase()]
-			.filter(Boolean)
-			.join('+');
-		if (!this.actions.has)
-			return () => { };
-		return this.actions.get(key);
 	}
 }
 

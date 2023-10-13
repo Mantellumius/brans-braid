@@ -8,24 +8,23 @@ import { useRootStore } from 'stores/RootStore';
 import { observer } from 'mobx-react';
 
 export const Item: FC<Props> = observer(({ className, item, index }) => {
-	const { navigationStore, explorerStore } = useRootStore();
+	const { explorerStore } = useRootStore();
 	const ref = useRef<HTMLButtonElement>(null);
 	const num = useMemo(() => {
-		if (navigationStore.selectedIndex === -1) return '';
-		if (navigationStore.selectedIndex === index) return `${index + 1}`;
-		return Math.abs((index  ?? 0) - navigationStore.selectedIndex);
-	}, [index, navigationStore.selectedIndex]);
+		if (explorerStore.selectedIndex === -1) return '';
+		if (explorerStore.selectedIndex === index) return `${index + 1}`;
+		return Math.abs((index  ?? 0) - explorerStore.selectedIndex);
+	}, [index, explorerStore.selectedIndex]);
 	useEffect(() => {
-		if (navigationStore.selectedIndex === index){
-			explorerStore.selectedItem = item;
+		if (explorerStore.selectedIndex === index) {
 			ref.current?.scrollIntoView();
 		}
-	},[navigationStore.selectedIndex, index]);
+	},[explorerStore.selectedIndex, index]);
 	return (
 		<button data-index={index}
-			className={classNames(cls.root, {[cls.root_focused]: navigationStore.selectedIndex === index}, [className])}
-			onClick={() => navigationStore.select(index)}
-			onDoubleClick={() => explorerStore.open()}
+			className={classNames(cls.root, {[cls.root_focused]: explorerStore.selectedIndex === index}, [className])}
+			onClick={() => explorerStore.select(index)}
+			onDoubleClick={() => explorerStore.openSelected()}
 			ref={ref}
 		>
 			<li className={cls.root__item}>

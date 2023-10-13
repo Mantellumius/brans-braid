@@ -5,7 +5,7 @@ import { useRootStore } from 'stores/RootStore';
 import { observer } from 'mobx-react';
 
 export const Path: FC<Props> = observer(({ className }) => {
-	const {explorerStore} = useRootStore();
+	const { explorerStore } = useRootStore();
 	return (
 		<div className={classNames(cls.root, {}, [className])}>
 			{explorerStore.path}

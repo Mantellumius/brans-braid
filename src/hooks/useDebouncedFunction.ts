@@ -1,12 +1,12 @@
 import { useRef } from 'react';
 
-export default function useDebouncedFunction(func: () => void, delay: number) {
+export default function useDebouncedFunction<T extends (...args: never[]) => unknown>(func: T, delay: number) {
 	const timeoutRef = useRef<NodeJS.Timeout>();
-	return () => {
+	return (...args: Parameters<T>) => {
 		if (timeoutRef.current)
 			clearTimeout(timeoutRef.current);
 		timeoutRef.current = setTimeout(() => {
-			func();
+			func(...args);
 		}, delay);
 	};
 }

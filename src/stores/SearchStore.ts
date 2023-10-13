@@ -1,7 +1,6 @@
 import { makeAutoObservable } from 'mobx';
 import { RefObject } from 'react';
 import { ExplorerItem } from 'widgets/Files';
-import ExplorerStore from './ExplorerStore';
 import HotkeysStore from './HotkeysStore';
 import { invoke } from '@tauri-apps/api/tauri';
 
@@ -9,14 +8,12 @@ class SearchStore {
 	private depth: 'one' | 'max' = 'one';
 	inputRef?: RefObject<HTMLInputElement>;
 	result: ExplorerItem[];
-	number: number = -1;
+	queryNumber: number = -1;
 	query = '';
 
 	constructor(
 		private readonly hotkeysStore: HotkeysStore,
-		private readonly explorerStore: () => ExplorerStore,
 	) {
-		this.explorerStore = explorerStore;
 		this.hotkeysStore = hotkeysStore;
 		this.result = [];
 		this.subscribe();
@@ -28,7 +25,7 @@ class SearchStore {
 	}
 
 	get isSearching() {
-		return this.number >= 0;
+		return this.queryNumber >= 0;
 	}
 
 	set setQuery(query: string) {
@@ -36,30 +33,28 @@ class SearchStore {
 	}
 
 	subscribe() {
-		this.hotkeysStore.setAction('ctrl+f', (e) => {
-			e.preventDefault();
+		this.hotkeysStore.setAction('ctrl+f', () => {
 			this.depth = 'one';
 			this.inputRef?.current?.focus();
 		});
-		this.hotkeysStore.setAction('ctrl+shift+f', (e) => {
-			e.preventDefault();
+		this.hotkeysStore.setAction('ctrl+shift+f', () => {
 			this.depth = 'max';
 			this.inputRef?.current?.focus();
 		});
 	}
 
-	*search() {
+	*search(path: string) {
 		if (!this.query) {
-			this.number = -1;
+			this.queryNumber = -1;
 			this.result = [];
 			return;
 		}
-		this.number = yield invoke('create_searcher', {
-			path: this.explorerStore().path,
+		this.queryNumber = yield invoke('create_searcher', {
+			path,
 			query: this.query,
 			depth: this.depthToNumber,
 		});
-		this.processQuery(this.number, this.query);
+		this.processQuery(this.queryNumber, this.query);
 	}
 
 	*processQuery(searcherNumber: number, query: string) {
@@ -67,10 +62,10 @@ class SearchStore {
 		let items: ExplorerItem[] | null = null;
 		while (items?.length !== 0) {
 			items = yield invoke<ExplorerItem[]>('get_search_results', { searcherNumber, query });
-			if (searcherNumber !== this.number) return;
+			if (searcherNumber !== this.queryNumber) return;
 			this.result.push(...items!);
 		}
-		this.number = -1;
+		this.queryNumber = -1;
 	}
 }
 

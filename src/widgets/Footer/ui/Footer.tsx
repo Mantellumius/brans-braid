@@ -5,8 +5,8 @@ import { useRootStore } from 'stores/RootStore';
 import { observer } from 'mobx-react';
 
 export const Footer: FC<Props> = observer(({ className }) => {
-	const { explorerStore: fileExplorerStore, navigationStore: explorerNavigationStore } = useRootStore();
-	const items = [`${fileExplorerStore.items.length} items`, `${explorerNavigationStore.actionMultiplier}`];
+	const { explorerStore } = useRootStore();
+	const items = [`${explorerStore.items.length} items`, `${explorerStore.actionMultiplier}`];
 	return (
 		<footer className={classNames(cls.root, {}, [className])}>
 			{items.filter(Boolean).map(item => 

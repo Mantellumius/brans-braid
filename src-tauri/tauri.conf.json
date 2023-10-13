@@ -14,7 +14,7 @@
 		"allowlist": {
 			"all": false,
 			"shell": {
-				"open": "."
+			"open": "."
 			},
 			"globalShortcut": {
 				"all": true

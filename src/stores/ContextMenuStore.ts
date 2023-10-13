@@ -5,7 +5,7 @@ import { register, isRegistered } from '@tauri-apps/api/globalShortcut';
 import ExplorerStore from './ExplorerStore';
 
 class ContextMenuStore {
-	constructor(private readonly explorerStore: () => ExplorerStore) {
+	constructor(private readonly explorerStore: ExplorerStore) {
 		this.explorerStore = explorerStore;
 		makeAutoObservable(this);
 		this.subscribe();
@@ -42,7 +42,7 @@ class ContextMenuStore {
 	}
 
 	openInVsCode() {
-		return invoke('code', { path: this.explorerStore().selectedItem?.path });
+		return invoke('code', { path: this.explorerStore.selectedItem?.path });
 	}
 }
 

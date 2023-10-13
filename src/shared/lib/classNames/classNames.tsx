@@ -5,6 +5,6 @@ export default function classNames(
 	return [
 		cls,
 		...additional.filter(Boolean),
-		Object.keys(mods).filter(cls => Boolean(mods[cls])),
+		...Object.keys(mods).filter(cls => Boolean(mods[cls])),
 	].join(' ').trim();
 }
