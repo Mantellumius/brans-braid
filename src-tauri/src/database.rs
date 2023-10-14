@@ -48,6 +48,7 @@ pub fn upgrade_database_if_needed(
                 tag_id INTEGER NOT NULL,
                 FOREIGN KEY (folder_id) REFERENCES folders(id),
                 FOREIGN KEY (tag_id) REFERENCES tags(id)
+                UNIQUE(folder_id, tag_id)
             );
         ",
         )?;

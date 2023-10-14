@@ -29,7 +29,7 @@ export const Item: FC<Props> = observer(({ className, item, index }) => {
 		>
 			<li className={cls.root__item}>
 				{num && <span className={cls.root__item__num}>{num}</span>}
-				{item.is_dir ? <Folder item={item} /> : <File item={item} />}
+				{item.isDir ? <Folder item={item} /> : <File item={item} />}
 			</li>
 		</button>
 	);

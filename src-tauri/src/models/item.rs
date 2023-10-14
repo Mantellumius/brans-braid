@@ -3,6 +3,7 @@ use ts_rs::TS;
 
 #[derive(Debug, serde::Serialize, TS)]
 #[ts(export, export_to = "../src/bindings/")]
+#[serde(rename_all = "camelCase")]
 pub struct Item {
     pub path: String,
     pub name: String,

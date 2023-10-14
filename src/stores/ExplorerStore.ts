@@ -47,9 +47,9 @@ class ExplorerStore {
 	}
 
 	openSelected() {
-		if (this.selectedItem?.is_file)
+		if (this.selectedItem?.isFile)
 			open(this.selectedItem.path);
-		else if (this.selectedItem?.is_dir)
+		else if (this.selectedItem?.isDir)
 			this.historyPush(this.selectedItem.path);
 	}
 

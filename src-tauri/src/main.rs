@@ -47,6 +47,10 @@ fn main() {
             get_tag,
             delete_tag,
             update_tag,
+            // Api
+            filter_by_tags,
+            add_tag,
+            remove_tag,
         ])
         .manage(ThreadCount {
             thread_coutner: Arc::new(Mutex::new(0)),

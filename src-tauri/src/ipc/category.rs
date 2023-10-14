@@ -4,25 +4,25 @@ use crate::{models::Category, state::ServiceAccess};
 use tauri::{command, AppHandle};
 
 #[command]
-pub fn create_category(app_handle: AppHandle, name: &str) -> IpcResponse<()> {
+pub fn create_category(app_handle: AppHandle, name: &str) -> IpcResponse<usize> {
     match app_handle.db(|db| Category::create(db, name)) {
-        Ok(_) => Ok(()).into(),
+        Ok(id) => Ok(id).into(),
         Err(e) => Err(Error::Sqlite(e)).into(),
     }
 }
 
 #[command]
-pub fn delete_category(app_handle: AppHandle, id: usize) -> IpcResponse<()> {
+pub fn delete_category(app_handle: AppHandle, id: usize) -> IpcResponse<usize> {
     match app_handle.db(|db| Category::delete(db, id)) {
-        Ok(_) => Ok(()).into(),
+        Ok(id) => Ok(id).into(),
         Err(e) => Err(Error::Sqlite(e)).into(),
     }
 }
 
 #[command]
-pub fn update_category(app_handle: AppHandle, id: usize, name: &str) -> IpcResponse<()> {
+pub fn update_category(app_handle: AppHandle, id: usize, name: &str) -> IpcResponse<usize> {
     match app_handle.db(|db| Category::update(db, id, name)) {
-        Ok(_) => Ok(()).into(),
+        Ok(id) => Ok(id).into(),
         Err(e) => Err(Error::Sqlite(e)).into(),
     }
 }
