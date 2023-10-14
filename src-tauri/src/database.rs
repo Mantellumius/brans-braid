@@ -11,7 +11,8 @@ pub fn initialize_database(app_handle: &AppHandle) -> Result<Connection, rusqlit
         .expect("The app data directory should exist.");
     fs::create_dir_all(&app_dir).expect("The app data directory should be created.");
     let sqlite_path = app_dir.join("db.sqlite");
-    let mut db = Connection::open(sqlite_path)?;
+    let mut db = Connection::open(sqlite_path).unwrap();
+    rusqlite::vtab::array::load_module(&db)?;
     let mut user_pragma = db.prepare("PRAGMA user_version")?;
     let existing_user_version: u32 = user_pragma.query_row([], |row| row.get(0))?;
     drop(user_pragma);
@@ -32,16 +33,19 @@ pub fn upgrade_database_if_needed(
             CREATE TABLE folders (
                 id INTEGER PRIMARY KEY,
                 path TEXT NOT NULL
+                UNIQUE(path)
             );
             CREATE TABLE tags (
                 id INTEGER PRIMARY KEY,
                 name TEXT NOT NULL,
                 category_id INTEGER NOT NULL,
                 FOREIGN KEY (category_id) REFERENCES categories(id)
+                UNIQUE(name)
             );
             CREATE TABLE categories (
                 id INTEGER PRIMARY KEY,
                 name TEXT NOT NULL
+                UNIQUE(name)
             );
             CREATE TABLE folder_tag (
                 folder_id INTEGER NOT NULL,

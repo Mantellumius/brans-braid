@@ -13,9 +13,9 @@ use state::DbConnection;
 use std::{
     fs::{self},
     iter::Flatten,
-    sync::{Arc, Mutex},
+    sync::{Arc, Mutex}, path::Path,
 };
-use tauri::{api::process::Command, Manager, Runtime, State};
+use tauri::{api::process::Command, AppHandle, Manager, Runtime, State, Window};
 use utils::*;
 const BUTCH_SIZE: usize = 10;
 
@@ -28,6 +28,7 @@ fn main() {
             read_dir,
             create_searcher,
             get_search_results,
+            get_folders_info,
             code,
             // Categories
             create_category,
@@ -74,11 +75,7 @@ fn main() {
 }
 
 #[tauri::command]
-fn code<R: Runtime>(
-    path: &str,
-    _app: tauri::AppHandle<R>,
-    _window: tauri::Window<R>,
-) -> IpcResponse<()> {
+fn code<R: Runtime>(path: &str, _app: AppHandle<R>, _window: Window<R>) -> IpcResponse<()> {
     execute_command("code", vec![path]);
     Ok(()).into()
 }
@@ -100,8 +97,8 @@ fn create_searcher<R: Runtime>(
     depth: usize,
     iterators: State<SearcherState>,
     searcher_state: State<ThreadCount>,
-    _app: tauri::AppHandle<R>,
-    _window: tauri::Window<R>,
+    _app: AppHandle<R>,
+    _window: Window<R>,
 ) -> IpcResponse<usize> {
     let thread_count = Arc::clone(&searcher_state.thread_coutner.clone());
     *thread_count.lock().unwrap() += 1;
@@ -111,14 +108,36 @@ fn create_searcher<R: Runtime>(
     Ok(searcher_number).into()
 }
 
+#[tauri::command]
+fn get_folders_info<R: Runtime>(
+    folders: Vec<String>,
+    _app: AppHandle<R>,
+    _window: Window<R>,
+) -> IpcResponse<Vec<Item>> {
+    let mut items = Vec::<Item>::new();
+    for path_str in folders {
+        let path = Path::new(&path_str);
+        let metadata = fs::metadata(path).unwrap();
+        items.push(Item {
+            path: path_str.clone(),
+            name: path.file_name().unwrap().to_str().unwrap().to_string(),
+            is_dir: metadata.is_dir(),
+            is_file: metadata.is_file(),
+            have_access: metadata.permissions().readonly(),
+            extension: String::new(),
+        });
+    }
+    Ok(items).into()
+}
+
 #[tauri::command(async)]
 fn get_search_results<R: Runtime>(
     query: String,
     searcher_number: usize,
     searcher_state: State<'_, ThreadCount>,
     iterators: State<'_, SearcherState>,
-    _app: tauri::AppHandle<R>,
-    _window: tauri::Window<R>,
+    _app: AppHandle<R>,
+    _window: Window<R>,
 ) -> IpcResponse<Vec<Item>> {
     let mut iterator = iterators.iterator.lock().unwrap();
     let query = query.clone().to_lowercase();

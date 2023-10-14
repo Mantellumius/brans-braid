@@ -1,4 +1,6 @@
-use rusqlite::{named_params, params, Connection, Result};
+use std::rc::Rc;
+
+use rusqlite::{named_params, types::Value, Connection, Result};
 
 #[derive(serde::Serialize)]
 pub struct Api {}
@@ -14,21 +16,20 @@ impl Api {
             .execute(named_params! { "@folder_id": folder_id, "@tag_id": tag_id })
     }
 
-    pub fn filter_by_tags(db: &Connection, tags: Vec<usize>) -> Result<Vec<String>> {
-        let ids = tags.iter()
-                .map(|&x| x.to_string())
-                .collect::<Vec<String>>()
-                .join(", ");
-        db.prepare(&format!(
+    pub fn filter_by_tags(db: &Connection, tags: Vec<u32>) -> Result<Vec<String>> {
+        let tags = Rc::new(tags.into_iter().map(Value::from).collect::<Vec<Value>>());
+        db.prepare(
             r"SELECT folders.path
 FROM folder_tag
 JOIN folders ON folders.id = folder_id
-WHERE tag_id IN ({})
+WHERE tag_id IN rarray(@tags)
 GROUP BY folder_id
-HAVING COUNT(DISTINCT tag_id) = {}",
-            ids, tags.len()
-        ))?
-        .query_map(params![], |row| row.get(0))?
+HAVING COUNT(DISTINCT tag_id) = @tags_count",
+        )?
+        .query_map(
+            named_params! {"@tags": &tags, "@tags_count": tags.len()},
+            |row| row.get(0),
+        )?
         .collect()
     }
 }

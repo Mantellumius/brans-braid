@@ -5,6 +5,7 @@ import clamp from 'shared/lib/clamp/clamp';
 import { open } from '@tauri-apps/api/shell';
 import { Item } from 'bindings/';
 import { ipcInvoke } from 'shared/lib/ipcInvoke/ipcInvoke';
+import TagsExplorerStore from './TagsExplorerStore';
 
 class ExplorerStore {
 	currentFolder: Item[];
@@ -16,9 +17,9 @@ class ExplorerStore {
 	constructor(
 		private readonly hotkeysStore: HotkeysStore,
 		private readonly searchStore: SearchStore,
+		private readonly tagsExplorerStore: TagsExplorerStore
 	) {
 		this.currentFolder = [];
-		this.hotkeysStore = hotkeysStore;
 		this.history = { redo: [], undo: ['M:\\'] };
 		this.subscribe();
 		makeAutoObservable(this);
@@ -33,9 +34,11 @@ class ExplorerStore {
 	}
 
 	get items() {
-		return this.searchStore.query ?
-			this.searchStore.result :
-			this.currentFolder;
+		if (this.tagsExplorerStore.items.length && !this.path)
+			return this.tagsExplorerStore.items;
+		if (this.searchStore.query)
+			return this.searchStore.result;
+		return this.currentFolder;
 	}
 
 	get path() {

@@ -6,11 +6,18 @@ class HotkeysStore {
 	constructor() {
 		this.actions = new Map();
 		this.subscribe();
+		this.addReset();
 		makeAutoObservable(this);
+	}
+
+	private addReset() {
+		this.setAction('ctrl+p', (e) => e.preventDefault());
+		this.setAction('ctrl+shift+s', (e) => e.preventDefault());
 	}
 
 	private subscribe() {
 		window.addEventListener('keydown', this.handleKeyDown.bind(this));
+		window.addEventListener('click', (e) => (e.altKey && e.button === 0) && e.preventDefault());
 	}
 
 	private handleKeyDown(e: KeyboardEvent) {

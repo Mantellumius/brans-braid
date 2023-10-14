@@ -4,17 +4,20 @@ import { createContext, ReactNode, useContext } from 'react';
 import ContextMenuStore from './ContextMenuStore';
 import HotkeysStore from './HotkeysStore';
 import SearchStore from './SearchStore';
+import TagsExplorerStore from './TagsExplorerStore';
 
 class RootStore {
 	explorerStore: ExplorerStore;
 	contextMenuStore: ContextMenuStore;
 	hotkeysStore: HotkeysStore;
 	searchStore: SearchStore;
-
+	tagsExplorerStore: TagsExplorerStore;
+	
 	constructor() {
 		this.hotkeysStore = new HotkeysStore();
+		this.tagsExplorerStore = new TagsExplorerStore();
 		this.searchStore = new SearchStore(this.hotkeysStore);
-		this.explorerStore = new ExplorerStore(this.hotkeysStore, this.searchStore);
+		this.explorerStore = new ExplorerStore(this.hotkeysStore, this.searchStore, this.tagsExplorerStore);
 		this.contextMenuStore = new ContextMenuStore(this.explorerStore);
 		makeAutoObservable(this);
 	}

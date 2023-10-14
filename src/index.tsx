@@ -4,6 +4,7 @@ import RootStore, { StoreProvider } from 'stores/RootStore';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import { Explorer } from 'pages/Explorer';
 import Layout from './app/Layout';
+import { TagsExplorer } from 'pages/TagsExplorer';
 
 const router = createBrowserRouter([
 	{
@@ -11,9 +12,13 @@ const router = createBrowserRouter([
 		element: <Layout />,
 		children:[
 			{
-				path: '',
+				path: '/explorer',
 				element: <Explorer />
-			}
+			},
+			{
+				path: '/tags',
+				element: <TagsExplorer />
+			},
 		]
 	}
 ]);
