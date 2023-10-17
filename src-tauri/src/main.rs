@@ -5,15 +5,18 @@ mod ipc;
 mod models;
 mod state;
 mod utils;
+
 pub use error::{Error, Result};
-use ipc::*;
+
+use ipc::{api, category, folder, tags, IpcResponse};
 use jwalk::{DirEntryIter, WalkDir};
 use models::*;
 use state::DbConnection;
 use std::{
     fs::{self},
     iter::Flatten,
-    sync::{Arc, Mutex}, path::Path,
+    path::Path,
+    sync::{Arc, Mutex},
 };
 use tauri::{api::process::Command, AppHandle, Manager, Runtime, State, Window};
 use utils::*;
@@ -30,28 +33,24 @@ fn main() {
             get_search_results,
             get_folders_info,
             code,
-            // Categories
-            create_category,
-            get_categories,
-            get_category,
-            delete_category,
-            update_category,
-            // Folders
-            create_folder,
-            get_folders,
-            get_folder,
-            delete_folder,
-            update_folder,
-            // Tags
-            create_tag,
-            get_tags,
-            get_tag,
-            delete_tag,
-            update_tag,
-            // Api
-            filter_by_tags,
-            add_tag,
-            remove_tag,
+            category::create_category,
+            category::get_categories,
+            category::get_category,
+            category::delete_category,
+            category::update_category,
+            folder::create_folder,
+            folder::get_folders,
+            folder::get_folder,
+            folder::delete_folder,
+            folder::update_folder,
+            tags::create_tag,
+            tags::get_tags,
+            tags::get_tag,
+            tags::delete_tag,
+            tags::update_tag,
+            api::filter_by_tags,
+            api::add_tag,
+            api::remove_tag,
         ])
         .manage(ThreadCount {
             thread_coutner: Arc::new(Mutex::new(0)),

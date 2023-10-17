@@ -1,8 +1,9 @@
 use rusqlite::Connection;
+use std::sync::Mutex;
 use tauri::{AppHandle, Manager, State};
 
 pub struct DbConnection {
-    pub db: std::sync::Mutex<Option<Connection>>,
+    pub db: Mutex<Option<Connection>>,
 }
 
 pub trait ServiceAccess {

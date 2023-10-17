@@ -11,8 +11,7 @@ pub fn create_folder(app_handle: AppHandle, name: &str) -> IpcResponse<usize> {
 }
 
 #[command]
-pub fn delete_folder(app_handle: AppHandle, id: usize) -> IpcResponse<usize> 
-{
+pub fn delete_folder(app_handle: AppHandle, id: usize) -> IpcResponse<usize> {
     match app_handle.db(|db| Folder::delete(db, id)) {
         Ok(id) => Ok(id).into(),
         Err(e) => Err(Error::Sqlite(e)).into(),
