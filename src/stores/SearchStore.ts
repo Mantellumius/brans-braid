@@ -4,19 +4,21 @@ import { Item } from 'bindings/';
 import HotkeysStore from './HotkeysStore';
 import { ipcInvoke } from 'shared/lib/ipcInvoke/ipcInvoke';
 import { IpcSimpleResult } from 'bindings/IpcSimpleResult';
+import NavigationStore from './NavigationStore';
 
 class SearchStore {
 	private depth: 'one' | 'max' = 'one';
 	inputRef?: RefObject<HTMLInputElement>;
-	result: Item[];
+	items: Item[] | null;
 	queryNumber: number = -1;
 	query = '';
 
 	constructor(
 		private readonly hotkeysStore: HotkeysStore,
+		private readonly navigationStore: NavigationStore,
 	) {
 		this.hotkeysStore = hotkeysStore;
-		this.result = [];
+		this.items = null;
 		this.subscribe();
 		makeAutoObservable(this);
 	}
@@ -47,26 +49,27 @@ class SearchStore {
 	*search(path: string) {
 		if (!this.query) {
 			this.queryNumber = -1;
-			this.result = [];
-			return;
+			this.items = null;
+		} else {
+			const response: IpcSimpleResult<number> = yield ipcInvoke<number>('create_searcher', {
+				path,
+				query: this.query,
+				depth: this.depthToNumber,
+			});
+			this.queryNumber = response.data;
+			this.processQuery(this.queryNumber, this.query);
 		}
-		const response: IpcSimpleResult<number> = yield ipcInvoke<number>('create_searcher', {
-			path,
-			query: this.query,
-			depth: this.depthToNumber,
-		});
-		this.queryNumber = response.data;
-		this.processQuery(this.queryNumber, this.query);
+		this.navigationStore.setItems = this.items;
 	}
 
 	*processQuery(searcherNumber: number, query: string) {
-		this.result = [];
+		this.items = [];
 		let items: Item[] | null = null;
 		while (items?.length !== 0) {
 			const response: IpcSimpleResult<Item[]> = yield ipcInvoke<Item[]>('get_search_results', { searcherNumber, query });
 			items = response.data;
 			if (searcherNumber !== this.queryNumber) return;
-			this.result.push(...items!);
+			this.items.push(...items!);
 		}
 		this.queryNumber = -1;
 	}

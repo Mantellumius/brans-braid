@@ -17,10 +17,10 @@ use std::{
     iter::Flatten,
     path::Path,
     sync::{Arc, Mutex},
+    time::{Duration, Instant},
 };
 use tauri::{api::process::Command, AppHandle, Manager, Runtime, State, Window};
 use utils::*;
-const BUTCH_SIZE: usize = 10;
 
 type FolderIterator = Flatten<DirEntryIter<((), ())>>;
 
@@ -41,6 +41,7 @@ fn main() {
             folder::create_folder,
             folder::get_folders,
             folder::get_folder,
+            folder::get_or_create_folder,
             folder::delete_folder,
             folder::update_folder,
             tags::create_tag,
@@ -142,15 +143,16 @@ fn get_search_results<R: Runtime>(
     let query = query.clone().to_lowercase();
     let thread_count = Arc::clone(&searcher_state.thread_coutner.clone());
     let mut result = Vec::<Item>::new();
+    let start = Instant::now();
     while *thread_count.lock().unwrap() == searcher_number {
         let entry = iterator.next();
         match entry {
             Some(entry) => {
                 if get_file_name(&entry).to_lowercase().contains(&query) {
                     result.push(Item::from_jwalk(&entry));
-                    if result.len() >= BUTCH_SIZE {
-                        return Ok(result).into();
-                    }
+                }
+                if start.elapsed() > Duration::from_secs(1) && !result.is_empty() {
+                    return Ok(result).into();
                 }
             }
             None => {

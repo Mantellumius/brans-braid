@@ -3,9 +3,17 @@ use crate::{models::Folder, state::ServiceAccess, Error};
 use tauri::{command, AppHandle};
 
 #[command]
-pub fn create_folder(app_handle: AppHandle, name: &str) -> IpcResponse<usize> {
-    match app_handle.db(|db| Folder::create(db, name)) {
+pub fn create_folder(app_handle: AppHandle, path: &str) -> IpcResponse<usize> {
+    match app_handle.db(|db| Folder::create(db, path)) {
         Ok(id) => Ok(id).into(),
+        Err(e) => Err(Error::Sqlite(e)).into(),
+    }
+}
+
+#[command]
+pub fn get_or_create_folder(app_handle: AppHandle, path: &str) -> IpcResponse<Folder> {
+    match app_handle.db(|db| Folder::get_or_create(db, path)) {
+        Ok(folder) => Ok(folder).into(),
         Err(e) => Err(Error::Sqlite(e)).into(),
     }
 }

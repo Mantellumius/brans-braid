@@ -22,10 +22,10 @@
 .root__item::after {
 	content: '';
 	position: absolute;
-	right: -8px;
+	right: -6px;
 	top: 4px;
-	width: 1px;
+	bottom: 4px;
 	border-radius: 2px;
+	width: 1px;
 	background: var(--neutral-200);
-	height: 12px;
 }

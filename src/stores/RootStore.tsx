@@ -5,6 +5,8 @@ import ContextMenuStore from './ContextMenuStore';
 import HotkeysStore from './HotkeysStore';
 import SearchStore from './SearchStore';
 import TagsExplorerStore from './TagsExplorerStore';
+import NavigationStore from './NavigationStore';
+import PopupStore from './PopupStore';
 
 class RootStore {
 	explorerStore: ExplorerStore;
@@ -12,13 +14,17 @@ class RootStore {
 	hotkeysStore: HotkeysStore;
 	searchStore: SearchStore;
 	tagsExplorerStore: TagsExplorerStore;
-	
+	navigationStore: NavigationStore;
+	popupStore: PopupStore;
+
 	constructor() {
+		this.popupStore = new PopupStore();
 		this.hotkeysStore = new HotkeysStore();
-		this.tagsExplorerStore = new TagsExplorerStore();
-		this.searchStore = new SearchStore(this.hotkeysStore);
-		this.explorerStore = new ExplorerStore(this.hotkeysStore, this.searchStore, this.tagsExplorerStore);
-		this.contextMenuStore = new ContextMenuStore(this.explorerStore);
+		this.navigationStore = new NavigationStore(this.hotkeysStore);
+		this.tagsExplorerStore = new TagsExplorerStore(this.navigationStore);
+		this.searchStore = new SearchStore(this.hotkeysStore, this.navigationStore);
+		this.explorerStore = new ExplorerStore(this.hotkeysStore, this.navigationStore);
+		this.contextMenuStore = new ContextMenuStore(this.navigationStore, this.popupStore);
 		makeAutoObservable(this);
 	}
 }

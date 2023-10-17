@@ -8,16 +8,16 @@ import { observer } from 'mobx-react';
 import { TagsList } from 'widgets/TagsList';
 
 export const TagsExplorer: FC<Props> = observer(({ className }) => {
-	const {tagsExplorerStore, explorerStore} = useRootStore();
+	const { navigationStore } = useRootStore();
 	useEffect(() => {
-		explorerStore.historyPush('');
+		navigationStore.historyPush('');
 	},[]);
 	return (
 		<main className={classNames(cls.root, {}, [className])}>
 			<Sidebar>
 				<TagsList />
 			</Sidebar>
-			<Files items={tagsExplorerStore.items}/>
+			<Files />
 		</main>
 	);
 });

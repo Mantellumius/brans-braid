@@ -12,3 +12,8 @@
 .root:focus {
 	outline: none;
 }
+
+.root:disabled {
+	opacity: .8;
+	cursor: initial;
+}

@@ -11,13 +11,19 @@ class HotkeysStore {
 	}
 
 	private addReset() {
+		this.setAction('ctrl+shift+g', (e) => e.preventDefault());
 		this.setAction('ctrl+p', (e) => e.preventDefault());
 		this.setAction('ctrl+shift+s', (e) => e.preventDefault());
 	}
 
 	private subscribe() {
 		window.addEventListener('keydown', this.handleKeyDown.bind(this));
-		window.addEventListener('click', (e) => (e.altKey && e.button === 0) && e.preventDefault());
+		window.addEventListener('click', (e) =>
+			(e.altKey && e.button === 0) && e.preventDefault()
+		);
+		window.addEventListener('mousedown', (e) =>
+			(e.button === 3 || e.button === 4) && e.preventDefault()
+		);
 	}
 
 	private handleKeyDown(e: KeyboardEvent) {

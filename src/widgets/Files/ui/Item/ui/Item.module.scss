@@ -18,6 +18,10 @@
 	border: none;
 }
 
+.root:hover {
+	background: rgba(255,255,255, .15);
+}
+
 .root_focused {
 	background: rgba(255,255,255, .3);
 	outline: none;
@@ -28,6 +32,4 @@
 	width: 25px;
 }
 
-.root:hover {
-	background: rgba(255,255,255, .15);
-}
+

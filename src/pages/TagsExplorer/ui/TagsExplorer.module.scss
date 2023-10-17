@@ -1,5 +1,5 @@
 .root {
 	display: flex;
-	padding-block: 16px;
-	gap: 16px;
+	height: calc(100% - var(--header-height));
+	padding-block: 16px 8px;
 }

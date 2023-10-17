@@ -6,8 +6,8 @@ import { observer } from 'mobx-react';
 import { Link } from 'react-router-dom';
 
 export const Footer: FC<Props> = observer(({ className }) => {
-	const { explorerStore } = useRootStore();
-	const items = [`${explorerStore.items.length} items`, `${explorerStore.actionMultiplier}`];
+	const { navigationStore } = useRootStore();
+	const items = [`${navigationStore.items.length} items`, `${navigationStore.actionMultiplier}`];
 	return (
 		<footer className={classNames(cls.root, {}, [className])}>
 			{items.filter(Boolean).map(item => 

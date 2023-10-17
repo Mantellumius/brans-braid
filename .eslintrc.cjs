@@ -22,6 +22,8 @@ module.exports = {
 		'@typescript-eslint',
 	],
 	'rules': {
+		'react/display-name': 0,
+		'react/prop-types': 0,
 		'@typescript-eslint/no-empty-function': 0,
 		'react/react-in-jsx-scope': 0,
 		'indent': [

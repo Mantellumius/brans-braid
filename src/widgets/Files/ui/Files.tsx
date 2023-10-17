@@ -3,23 +3,28 @@ import cls from './Files.module.scss';
 import classNames from 'shared/lib/classNames/classNames';
 import { Item } from './Item';
 import { observer } from 'mobx-react';
-import { Item as ExplorerItem } from 'bindings/';
+import { useRootStore } from 'stores/RootStore';
+import { AskTagPopup } from 'widgets/AskTagPopup';
 
-export const Files: FC<Props> = observer(({ className, items }) => {
+export const Files: FC<Props> = observer(({ className }) => {
+	const { navigationStore } = useRootStore();
 	return (
-		<div className={classNames(cls.root, {}, [className])}>
-			<ul className={classNames(cls.root__list)}>
-				{items.slice(0, 999).map((item, i) => 
-					<Item key={item.path} 
-						index={i}
-						item={item}
-					/>)}
-			</ul>
-		</div>
+		<>
+			<div className={classNames(cls.root, {}, [className])}>
+				<ul className={classNames(cls.root__list)}>
+					{navigationStore.items.slice(0, 999).map((item, i) => 
+						<Item key={item.path} 
+							index={i}
+							isSelected={navigationStore.selectedIndex === i}
+							item={item}
+						/>)}
+				</ul>
+			</div>
+			<AskTagPopup/>
+		</>
 	);
 });
-
+Files.displayName = 'Files';
 interface Props {
 	className?: string;
-	items: ExplorerItem[];
 }

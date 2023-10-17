@@ -1,14 +1,17 @@
 import { Category, Item, Tag } from 'bindings/';
 import { makeAutoObservable, autorun } from 'mobx';
 import { ipcInvoke } from 'shared/lib/ipcInvoke/ipcInvoke';
+import NavigationStore from './NavigationStore';
 
 class TagsExplorerStore {
 	tags: Tag[];
 	categories: Category[];
-	items: Item[];
+	items: Item[] | null;
 	selectedTags: number[];
 
-	constructor() {
+	constructor(
+		private readonly navigationStore: NavigationStore
+	) {
 		this.tags = [];
 		this.categories = [];
 		this.items = [];
@@ -17,10 +20,13 @@ class TagsExplorerStore {
 		this.fetchCategories();
 		makeAutoObservable(this);
 		autorun(async () => {
-			const responseFolders = await ipcInvoke<string[]>('filter_by_tags', {tags: this.selectedTags});
-			const folders = responseFolders.data;
-			const responseItems = await ipcInvoke<Item[]>('get_folders_info', {folders});
-			this.items = responseItems.data;
+			if (this.selectedTags.length === 0) {
+				this.items = null;
+			} else {
+				const folders = await ipcInvoke<string[]>('filter_by_tags', { tags: this.selectedTags });
+				this.items = await ipcInvoke<Item[]>('get_folders_info', { folders });
+			}
+			this.navigationStore.setItems = this.items;
 		});
 	}
 
@@ -39,13 +45,11 @@ class TagsExplorerStore {
 	}
 
 	private async fetchTags() {
-		const response = await ipcInvoke<Tag[]>('get_tags');
-		this.tags = response.data;
+		this.tags = await ipcInvoke<Tag[]>('get_tags');
 	}
 
 	private async fetchCategories() {
-		const response = await ipcInvoke<Category[]>('get_categories');
-		this.categories = response.data;
+		this.categories = await ipcInvoke<Category[]>('get_categories');
 	}
 }
 

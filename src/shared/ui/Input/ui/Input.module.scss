@@ -1,4 +1,10 @@
 .root {
 	background-color: transparent;
 	border: none;
+	padding: 4px;
+	border-radius: 4px;
+}
+
+.root:focus {
+	outline: none;
 }

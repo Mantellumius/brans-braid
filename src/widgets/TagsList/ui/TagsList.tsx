@@ -11,6 +11,7 @@ export const TagsList: FC = () => {
 				<AccordionItem 
 					title={`${categoryWithTags.category.name} - ${categoryWithTags.tags.length}`}
 					key={categoryWithTags.category.id} 
+					disabled={categoryWithTags.tags.length === 0}
 				>
 					{categoryWithTags.tags.map((tag) => (<Tag key={tag.id} tag={tag}/>))}
 				</AccordionItem>

@@ -14,7 +14,7 @@
 		"allowlist": {
 			"all": false,
 			"shell": {
-			"open": "."
+				"open": "."
 			},
 			"globalShortcut": {
 				"all": true
@@ -38,7 +38,8 @@
 				"resizable": true,
 				"title": "Brans Braid",
 				"width": 1080,
-				"height": 600
+				"height": 600,
+				"additionalBrowserArgs": "--disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection,OverscrollHistoryNavigation,msExperimentalScrollin --disable-pinch"
 			}
 		]
 	}

@@ -7,12 +7,12 @@ pub struct Api {}
 
 impl Api {
     pub fn add_tag(db: &Connection, folder_id: usize, tag_id: usize) -> Result<usize> {
-        db.prepare("INSERT INTO tag_folder (tag_id, folder_id) VALUES (@tag_id, @folder_id)")?
+        db.prepare("INSERT INTO folder_tag (tag_id, folder_id) VALUES (@tag_id, @folder_id)")?
             .execute(named_params! { "@folder_id": folder_id, "@tag_id": tag_id })
     }
 
     pub fn remove_tag(db: &Connection, folder_id: usize, tag_id: usize) -> Result<usize> {
-        db.prepare("DELETE FROM tag_folder WHERE tag_id = @tag_id AND folder_id = @folder_id")?
+        db.prepare("DELETE FROM folder_tag WHERE tag_id = @tag_id AND folder_id = @folder_id")?
             .execute(named_params! { "@folder_id": folder_id, "@tag_id": tag_id })
     }
 
