@@ -13,7 +13,7 @@ export const Files: FC<Props> = observer(({ className }) => {
 			<div className={classNames(cls.root, {}, [className])}>
 				<ul className={classNames(cls.root__list)}>
 					{navigationStore.items.slice(0, 999).map((item, i) => 
-						<Item key={item.path} 
+						<Item key={`${item.path}-${i}`} 
 							index={i}
 							isSelected={navigationStore.selectedIndex === i}
 							item={item}

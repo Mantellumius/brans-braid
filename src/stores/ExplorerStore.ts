@@ -33,7 +33,7 @@ class ExplorerStore {
 	}
 
 	private subscribe() {
-		this.hotkeysStore.setAction('enter', () => this.openSelected());
+		this.hotkeysStore.setAction('Enter', () => this.openSelected());
 	}
 }
 

@@ -35,11 +35,13 @@ class SearchStore {
 	}
 
 	subscribe() {
-		this.hotkeysStore.setAction('ctrl+f', () => {
+		this.hotkeysStore.setAction('ctrl+KeyF', (e) => {
+			e.preventDefault();
 			this.depth = 'one';
 			this.inputRef?.current?.focus();
 		});
-		this.hotkeysStore.setAction('ctrl+shift+f', () => {
+		this.hotkeysStore.setAction('ctrl+shift+KeyF', (e) => {
+			e.preventDefault();
 			this.depth = 'max';
 			this.inputRef?.current?.focus();
 		});

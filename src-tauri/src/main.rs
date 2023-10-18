@@ -3,26 +3,22 @@ mod database;
 mod error;
 mod ipc;
 mod models;
+mod searcher;
 mod state;
 mod utils;
 
 pub use error::{Error, Result};
 
 use ipc::{api, category, folder, tags, IpcResponse};
-use jwalk::{DirEntryIter, WalkDir};
 use models::*;
-use state::DbConnection;
+use searcher::Searcher;
+use state::AppState;
 use std::{
     fs::{self},
-    iter::Flatten,
     path::Path,
     sync::{Arc, Mutex},
-    time::{Duration, Instant},
 };
 use tauri::{api::process::Command, AppHandle, Manager, Runtime, State, Window};
-use utils::*;
-
-type FolderIterator = Flatten<DirEntryIter<((), ())>>;
 
 fn main() {
     tauri::Builder::default()
@@ -56,21 +52,16 @@ fn main() {
             api::get_folder_tags,
             api::update_folder_tags
         ])
-        .manage(ThreadCount {
-            thread_coutner: Arc::new(Mutex::new(0)),
-        })
-        .manage(SearcherState {
-            iterator: Arc::new(Mutex::new(create_folder_iterator("".to_string(), 1))),
-        })
-        .manage(DbConnection {
+        .manage(AppState {
+            searcher: Arc::new(Mutex::new(Searcher::default())),
             db: Default::default(),
         })
         .setup(|app| {
             let handle = app.handle();
-            let app_state: State<DbConnection> = handle.state();
+            let db_state: State<AppState> = handle.state();
             let db =
                 database::initialize_database(&handle).expect("Database initialize should succeed");
-            *app_state.db.lock().unwrap() = Some(db);
+            *db_state.db.lock().unwrap() = Some(db);
             Ok(())
         })
         .run(tauri::generate_context!())
@@ -99,17 +90,12 @@ fn read_dir(path: &str) -> IpcResponse<Vec<serde_json::Value>> {
 fn create_searcher<R: Runtime>(
     path: String,
     depth: usize,
-    iterators: State<SearcherState>,
-    searcher_state: State<ThreadCount>,
+    app_state: State<AppState>,
     _app: AppHandle<R>,
     _window: Window<R>,
 ) -> IpcResponse<usize> {
-    let thread_count = Arc::clone(&searcher_state.thread_coutner.clone());
-    *thread_count.lock().unwrap() += 1;
-    let searcher_number = *thread_count.lock().unwrap();
-    let mut iterator = iterators.iterator.lock().unwrap();
-    *iterator = create_folder_iterator(path.clone(), depth);
-    Ok(searcher_number).into()
+    let mut searcher = app_state.searcher.lock().unwrap();
+    Ok(searcher.update_folder_iterator(path, depth)).into()
 }
 
 #[tauri::command]
@@ -128,50 +114,12 @@ fn get_folders_info<R: Runtime>(
 #[tauri::command(async)]
 fn get_search_results<R: Runtime>(
     query: String,
-    searcher_number: usize,
-    searcher_state: State<'_, ThreadCount>,
-    iterators: State<'_, SearcherState>,
+    app_state: State<AppState>,
     _app: AppHandle<R>,
     _window: Window<R>,
 ) -> IpcResponse<Vec<Item>> {
-    let mut iterator = iterators.iterator.lock().unwrap();
-    let thread_count = Arc::clone(&searcher_state.thread_coutner.clone());
-    let query = query.clone().to_lowercase();
-    let mut result = Vec::<Item>::new();
-    let interval = Duration::from_secs(1);
-    let start = Instant::now();
-    for entry in iterator
-        .by_ref()
-        .take_while(|_| *thread_count.lock().unwrap() == searcher_number)
-    {
-        if get_file_name(&entry).to_lowercase().contains(&query) {
-            result.push(Item::try_from(&entry).unwrap());
-        }
-        if start.elapsed() > interval && !result.is_empty() {
-            return Ok(result).into();
-        }
-    }
-    if *thread_count.lock().unwrap() == searcher_number {
-        Ok(result).into()
-    } else {
-        Ok(Vec::<Item>::new()).into()
-    }
-}
-
-fn create_folder_iterator(path: String, depth: usize) -> FolderIterator {
-    WalkDir::new(path)
-        .parallelism(jwalk::Parallelism::RayonNewPool(8))
-        .min_depth(1)
-        .max_depth(depth)
-        .process_read_dir(|_, _, _, children| {
-            children.iter_mut().flatten().for_each(|dir_entry| {
-                if !is_valid_filename(get_file_name(dir_entry)) {
-                    dir_entry.read_children_path = None;
-                }
-            });
-        })
-        .into_iter()
-        .flatten()
+    let mut searcher = app_state.searcher.lock().unwrap();
+    Ok(searcher.get_results(query)).into()
 }
 
 fn execute_command(command: &str, args: Vec<&str>) {
@@ -181,10 +129,3 @@ fn execute_command(command: &str, args: Vec<&str>) {
         .expect("Failed to execute command");
 }
 
-struct ThreadCount {
-    pub thread_coutner: Arc<Mutex<usize>>,
-}
-
-struct SearcherState {
-    pub iterator: Arc<Mutex<FolderIterator>>,
-}

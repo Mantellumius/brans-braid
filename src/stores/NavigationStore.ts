@@ -1,5 +1,5 @@
 import { Item } from 'bindings/';
-import { makeAutoObservable } from 'mobx';
+import { makeAutoObservable, runInAction } from 'mobx';
 import clamp from 'shared/lib/clamp/clamp';
 import HotkeysStore from './HotkeysStore';
 
@@ -21,12 +21,21 @@ class NavigationStore {
 	}
 
 	set setItems(items: Item[] | null) {
-		this._items = items;
-		this.select(0);
+		if (items?.length) {
+			this._items = items;
+			this.select(0);
+			return;
+		}
+		setTimeout(() => {
+			runInAction(() => {
+				this._items = items;
+				this.select(0);
+			});
+		}, 100);
 	}
 
 	get items() {
-		if (this._items?.length)
+		if (this._items)
 			return this._items;
 		return this._currentFolder;
 	}
@@ -64,17 +73,16 @@ class NavigationStore {
 	}
 
 	private subscribe() {
-		// this.hotkeysStore.setAction('ctrl+r', () => this.reload());
-		this.hotkeysStore.setAction('f5', () => this.reload());
-		this.hotkeysStore.setAction('h', () => this.previousFolder(this.consumeMultiplier()));
-		this.hotkeysStore.setAction('j', () => this.moveDown(this.consumeMultiplier()));
-		this.hotkeysStore.setAction('k', () => this.moveUp(this.consumeMultiplier()));
-		this.hotkeysStore.setAction('l', () => this.nextFolder(this.consumeMultiplier()));
-		for (let i = 0; i < 10; i++)
-			this.hotkeysStore.setAction(
-				i.toString(),
-				() => this.actionMultiplier += i
-			);
+		// this.hotkeysStore.setAction('ctrl+KeyR', () => this.reload());
+		this.hotkeysStore.setAction('F5', () => this.reload());
+		this.hotkeysStore.setAction('KeyH', () => this.previousFolder(this.consumeMultiplier()));
+		this.hotkeysStore.setAction('KeyJ', () => this.moveDown(this.consumeMultiplier()));
+		this.hotkeysStore.setAction('KeyK', () => this.moveUp(this.consumeMultiplier()));
+		this.hotkeysStore.setAction('KeyL', () => this.nextFolder(this.consumeMultiplier()));
+		for (let i = 0; i < 10; i++) {
+			this.hotkeysStore.setAction(`Digit${i}`, () => this.actionMultiplier += i);
+			this.hotkeysStore.setAction(`Numpad${i}`, () => this.actionMultiplier += i);
+		}
 	}
 
 	private consumeMultiplier() {

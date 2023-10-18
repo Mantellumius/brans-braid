@@ -71,7 +71,7 @@ class ContextMenuStore {
 		const folder = await ipcInvoke<Folder>('get_or_create_folder', { path: item.path });
 		const tag = await this.popupStore.askTagName();
 		if (!tag || !folder) return;
-		ipcInvoke('add_tag', { folderId: folder.id, tagId: tag.id});
+		ipcInvoke('add_tag', { folderId: folder.id, tagId: tag.id });
 	}
 }
 

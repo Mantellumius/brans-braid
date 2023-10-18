@@ -11,9 +11,10 @@ class HotkeysStore {
 	}
 
 	private addReset() {
-		this.setAction('ctrl+shift+g', (e) => e.preventDefault());
-		this.setAction('ctrl+p', (e) => e.preventDefault());
-		this.setAction('ctrl+shift+s', (e) => e.preventDefault());
+		this.setAction('ctrl+shift+KeyG', (e) => e.preventDefault());
+		this.setAction('ctrl+KeyG', (e) => e.preventDefault());
+		this.setAction('ctrl+KeyP', (e) => e.preventDefault());
+		this.setAction('ctrl+shift+KeyS', (e) => e.preventDefault());
 	}
 
 	private subscribe() {
@@ -28,7 +29,7 @@ class HotkeysStore {
 
 	private handleKeyDown(e: KeyboardEvent) {
 		if ((e.target as Element).tagName === 'INPUT') return;
-		const key = [(e.ctrlKey && 'ctrl'), (e.altKey && 'alt'), (e.shiftKey && 'shift'), e.key.toLowerCase()]
+		const key = [(e.ctrlKey && 'ctrl'), (e.altKey && 'alt'), (e.shiftKey && 'shift'), e.code]
 			.filter(Boolean)
 			.join('+');
 		const action = this.actions.get(key);
