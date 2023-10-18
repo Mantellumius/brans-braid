@@ -3,7 +3,6 @@ import { RefObject } from 'react';
 import { Item } from 'bindings/';
 import HotkeysStore from './HotkeysStore';
 import { ipcInvoke } from 'shared/lib/ipcInvoke/ipcInvoke';
-import { IpcSimpleResult } from 'bindings/IpcSimpleResult';
 import NavigationStore from './NavigationStore';
 
 class SearchStore {
@@ -51,12 +50,11 @@ class SearchStore {
 			this.queryNumber = -1;
 			this.items = null;
 		} else {
-			const response: IpcSimpleResult<number> = yield ipcInvoke<number>('create_searcher', {
+			this.queryNumber = yield ipcInvoke<number>('create_searcher', {
 				path,
 				query: this.query,
 				depth: this.depthToNumber,
 			});
-			this.queryNumber = response.data;
 			this.processQuery(this.queryNumber, this.query);
 		}
 		this.navigationStore.setItems = this.items;
@@ -66,8 +64,7 @@ class SearchStore {
 		this.items = [];
 		let items: Item[] | null = null;
 		while (items?.length !== 0) {
-			const response: IpcSimpleResult<Item[]> = yield ipcInvoke<Item[]>('get_search_results', { searcherNumber, query });
-			items = response.data;
+			items = yield ipcInvoke<Item[]>('get_search_results', { searcherNumber, query });
 			if (searcherNumber !== this.queryNumber) return;
 			this.items.push(...items!);
 		}

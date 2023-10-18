@@ -1,0 +1,1 @@
+export { UpdateTags } from './ui/UpdateTags';

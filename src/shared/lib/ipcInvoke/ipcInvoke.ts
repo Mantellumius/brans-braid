@@ -9,7 +9,6 @@ import { IpcResponse } from 'bindings/';
 export async function ipcInvoke<T>(method: string, params?: { [key in string]: unknown }): Promise<T> {
 	const response = await invoke<IpcResponse<T>>(method, params);
 	if (response.error != null) {
-		console.log('ERROR - ipc_invoke - ipc_invoke error', response);
 		throw new Error(response.error.message);
 	} else {
 		return response.result!.data;

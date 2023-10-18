@@ -8,3 +8,7 @@
 .root:focus {
 	outline: none;
 }
+
+.root[type='checkbox'] {
+	cursor: pointer;
+}

@@ -6,6 +6,7 @@ import { Files } from 'widgets/Files';
 import { useRootStore } from 'stores/RootStore';
 import { observer } from 'mobx-react';
 import { TagsList } from 'widgets/TagsList';
+import { UpdateTags } from 'widgets/UpdateTags';
 
 export const TagsExplorer: FC<Props> = observer(({ className }) => {
 	const { navigationStore } = useRootStore();
@@ -16,6 +17,8 @@ export const TagsExplorer: FC<Props> = observer(({ className }) => {
 		<main className={classNames(cls.root, {}, [className])}>
 			<Sidebar>
 				<TagsList />
+				<hr/>
+				<UpdateTags />
 			</Sidebar>
 			<Files />
 		</main>

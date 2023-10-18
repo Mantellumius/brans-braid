@@ -1,4 +1,4 @@
-use rusqlite::{named_params, Connection};
+use rusqlite::{named_params, Connection, Row};
 use ts_rs::TS;
 
 #[derive(serde::Serialize, TS)]
@@ -11,7 +11,11 @@ pub struct Tag {
 }
 
 impl Tag {
-    pub fn create(db: &Connection, name: &str, category_id: usize) -> Result<usize, rusqlite::Error> {
+    pub fn create(
+        db: &Connection,
+        name: &str,
+        category_id: usize,
+    ) -> Result<usize, rusqlite::Error> {
         db.prepare("INSERT INTO tags (name, category_id) VALUES (@name, @category_id)")?
             .execute(named_params! { "@name": name, "@category_id": category_id })
     }
@@ -27,33 +31,30 @@ impl Tag {
         name: &str,
         category_id: usize,
     ) -> Result<usize, rusqlite::Error> {
-        db.prepare(
-            "UPDATE tags SET name = @name, category_id = @category_id WHERE id = @id",
-        )?
-        .execute(named_params! { "@id": id, "@name": name, "@category_id": category_id })
+        db.prepare("UPDATE tags SET name = @name, category_id = @category_id WHERE id = @id")?
+            .execute(named_params! { "@id": id, "@name": name, "@category_id": category_id })
     }
 
     pub fn get(db: &Connection, id: usize) -> Result<Tag, rusqlite::Error> {
         db.prepare("SELECT * FROM tags WHERE id = @id")?
-            .query_row(named_params! { "@id": id }, |r| {
-                Ok(Tag {
-                    id: r.get("id").unwrap(),
-                    name: r.get("name").unwrap(),
-                    category_id: r.get("category_id").unwrap(),
-                })
-            })
+            .query_row(named_params! { "@id": id }, |row| Tag::try_from(row))
     }
 
     pub fn get_all(db: &Connection) -> Result<Vec<Tag>, rusqlite::Error> {
         db.prepare("SELECT * FROM tags")?
-            .query_map([], |r| {
-                Ok(Tag {
-                    id: r.get("id").unwrap(),
-                    name: r.get("name").unwrap(),
-					category_id: r.get("category_id").unwrap(),
-                })
-            })
-            .unwrap()
+            .query_map([], |row| Tag::try_from(row))?
             .collect()
+    }
+}
+
+impl TryFrom<&Row<'_>> for Tag {
+    type Error = rusqlite::Error;
+
+    fn try_from(row: &Row<'_>) -> Result<Self, Self::Error> {
+        Ok(Tag {
+            id: row.get("id")?,
+            name: row.get("name")?,
+            category_id: row.get("category_id")?,
+        })
     }
 }

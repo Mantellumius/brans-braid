@@ -1,7 +1,12 @@
 .root__button {
-	padding: 0;
+	padding-block: 4px;
+	padding-inline: 0!important;
 }
 
 .root__content {
-	padding-inline: 12px;
+	padding-inline: 8px;
+}
+
+.root__icon {
+	transition: transform .1s ease;
 }

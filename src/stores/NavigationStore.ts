@@ -5,7 +5,7 @@ import HotkeysStore from './HotkeysStore';
 
 class NavigationStore {
 	private _items: Item[] | null;
-	currentFolder: Item[];
+	private _currentFolder: Item[];
 	selectedIndex: number = 0;
 	actionMultiplier = '';
 	history: { redo: string[], undo: string[]; };
@@ -14,7 +14,7 @@ class NavigationStore {
 		private readonly hotkeysStore: HotkeysStore
 	) {
 		this._items = [];
-		this.currentFolder = [];
+		this._currentFolder = [];
 		this.history = { redo: [], undo: ['M:\\'] };
 		this.subscribe();
 		makeAutoObservable(this);
@@ -28,7 +28,7 @@ class NavigationStore {
 	get items() {
 		if (this._items?.length)
 			return this._items;
-		return this.currentFolder;
+		return this._currentFolder;
 	}
 
 
@@ -38,6 +38,10 @@ class NavigationStore {
 
 	get path() {
 		return this.history.undo.at(-1)!;
+	}
+
+	set setCurrentFolder(items: Item[]) {
+		this._currentFolder = items;
 	}
 
 	select(index: number) {

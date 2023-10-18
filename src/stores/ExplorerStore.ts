@@ -21,7 +21,7 @@ class ExplorerStore {
 			this.currentFolder = [];
 			this.currentFolder = await ipcInvoke<Item[]>('read_dir', { path: this.navigationStore.path });
 			this.navigationStore.setItems = this.currentFolder;
-			this.navigationStore.currentFolder = this.currentFolder;
+			this.navigationStore.setCurrentFolder = this.currentFolder;
 		});
 	}
 

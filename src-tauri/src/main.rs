@@ -40,6 +40,7 @@ fn main() {
             category::update_category,
             folder::create_folder,
             folder::get_folders,
+            folder::get_folder_by_path,
             folder::get_folder,
             folder::get_or_create_folder,
             folder::delete_folder,
@@ -52,6 +53,8 @@ fn main() {
             api::filter_by_tags,
             api::add_tag,
             api::remove_tag,
+            api::get_folder_tags,
+            api::update_folder_tags
         ])
         .manage(ThreadCount {
             thread_coutner: Arc::new(Mutex::new(0)),
@@ -84,7 +87,8 @@ fn code<R: Runtime>(path: &str, _app: AppHandle<R>, _window: Window<R>) -> IpcRe
 fn read_dir(path: &str) -> IpcResponse<Vec<serde_json::Value>> {
     match fs::read_dir(path) {
         Ok(folders) => Ok(folders
-            .map(|entry| serde_json::to_value(Item::from(&entry.unwrap())).unwrap())
+            .flatten()
+            .map(|entry| serde_json::to_value(Item::try_from(&entry).unwrap()).unwrap())
             .collect())
         .into(),
         Err(e) => Err(Error::IO(e)).into(),
@@ -114,20 +118,11 @@ fn get_folders_info<R: Runtime>(
     _app: AppHandle<R>,
     _window: Window<R>,
 ) -> IpcResponse<Vec<Item>> {
-    let mut items = Vec::<Item>::new();
-    for path_str in folders {
-        let path = Path::new(&path_str);
-        let metadata = fs::metadata(path).unwrap();
-        items.push(Item {
-            path: path_str.clone(),
-            name: path.file_name().unwrap().to_str().unwrap().to_string(),
-            is_dir: metadata.is_dir(),
-            is_file: metadata.is_file(),
-            have_access: metadata.permissions().readonly(),
-            extension: String::new(),
-        });
-    }
-    Ok(items).into()
+    Ok(folders
+        .iter()
+        .flat_map(|path_str| Item::try_from(Path::new(&path_str)))
+        .collect())
+    .into()
 }
 
 #[tauri::command(async)]
@@ -140,27 +135,27 @@ fn get_search_results<R: Runtime>(
     _window: Window<R>,
 ) -> IpcResponse<Vec<Item>> {
     let mut iterator = iterators.iterator.lock().unwrap();
-    let query = query.clone().to_lowercase();
     let thread_count = Arc::clone(&searcher_state.thread_coutner.clone());
+    let query = query.clone().to_lowercase();
     let mut result = Vec::<Item>::new();
+    let interval = Duration::from_secs(1);
     let start = Instant::now();
-    while *thread_count.lock().unwrap() == searcher_number {
-        let entry = iterator.next();
-        match entry {
-            Some(entry) => {
-                if get_file_name(&entry).to_lowercase().contains(&query) {
-                    result.push(Item::from_jwalk(&entry));
-                }
-                if start.elapsed() > Duration::from_secs(1) && !result.is_empty() {
-                    return Ok(result).into();
-                }
-            }
-            None => {
-                return Ok(result).into();
-            }
+    for entry in iterator
+        .by_ref()
+        .take_while(|_| *thread_count.lock().unwrap() == searcher_number)
+    {
+        if get_file_name(&entry).to_lowercase().contains(&query) {
+            result.push(Item::try_from(&entry).unwrap());
+        }
+        if start.elapsed() > interval && !result.is_empty() {
+            return Ok(result).into();
         }
     }
-    Ok(Vec::<Item>::new()).into()
+    if *thread_count.lock().unwrap() == searcher_number {
+        Ok(result).into()
+    } else {
+        Ok(Vec::<Item>::new()).into()
+    }
 }
 
 fn create_folder_iterator(path: String, depth: usize) -> FolderIterator {
@@ -175,8 +170,7 @@ fn create_folder_iterator(path: String, depth: usize) -> FolderIterator {
                 }
             });
         })
-        .try_into_iter()
-        .unwrap()
+        .into_iter()
         .flatten()
 }
 

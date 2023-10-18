@@ -1,4 +1,4 @@
-use rusqlite::{named_params, Connection, Result};
+use rusqlite::{named_params, Connection, Result, Row};
 use ts_rs::TS;
 
 #[derive(serde::Serialize, TS)]
@@ -18,8 +18,8 @@ impl Folder {
     pub fn get_or_create(db: &Connection, path: &str) -> Result<Folder> {
         let folder = Folder::get_by_path(db, path);
         match folder {
-            Ok(_) => Ok(folder.unwrap()),
-            Err(_) => Folder::get(db, Folder::create(db, path).unwrap()),
+            Ok(folder) => Ok(folder),
+            Err(_) => Folder::get(db, Folder::create(db, path)?),
         }
     }
 
@@ -35,33 +35,28 @@ impl Folder {
 
     pub fn get(db: &Connection, id: usize) -> Result<Folder> {
         db.prepare("SELECT * FROM folders WHERE id = @id")?
-            .query_row(named_params! { "@id": id }, |r| {
-                Ok(Folder {
-                    id: r.get("id").unwrap(),
-                    path: r.get("path").unwrap(),
-                })
-            })
+            .query_row(named_params! { "@id": id }, |row| Folder::try_from(row))
     }
 
     pub fn get_by_path(db: &Connection, path: &str) -> Result<Folder> {
         db.prepare("SELECT * FROM folders WHERE path = @path")?
-            .query_row(named_params! { "@path": path }, |r| {
-                Ok(Folder {
-                    id: r.get("id").unwrap(),
-                    path: r.get("path").unwrap(),
-                })
-            })
+            .query_row(named_params! { "@path": path }, |row| Folder::try_from(row))
     }
 
     pub fn get_all(db: &Connection) -> Result<Vec<Folder>> {
         db.prepare("SELECT * FROM folders")?
-            .query_map([], |r| {
-                Ok(Folder {
-                    id: r.get("id").unwrap(),
-                    path: r.get("path").unwrap(),
-                })
-            })
-            .unwrap()
+            .query_map([], |row| Folder::try_from(row))?
             .collect()
+    }
+}
+
+impl TryFrom<&Row<'_>> for Folder {
+    type Error = rusqlite::Error;
+
+    fn try_from(row: &Row<'_>) -> std::result::Result<Self, Self::Error> {
+        Ok(Folder {
+            id: row.get("id")?,
+            path: row.get("path")?,
+        })
     }
 }

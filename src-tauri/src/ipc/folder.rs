@@ -35,6 +35,14 @@ pub fn update_folder(app_handle: AppHandle, id: usize, name: &str) -> IpcRespons
 }
 
 #[command]
+pub fn get_folder_by_path(app_handle: AppHandle, path: &str) -> IpcResponse<Folder> {
+    match app_handle.db(|db| Folder::get_by_path(db, path)) {
+        Ok(folder) => Ok(folder).into(),
+        Err(e) => Err(Error::Sqlite(e)).into(),
+    }
+}
+
+#[command]
 pub fn get_folder(app_handle: AppHandle, id: usize) -> IpcResponse<Folder> {
     match app_handle.db(|db| Folder::get(db, id)) {
         Ok(folder) => Ok(folder).into(),

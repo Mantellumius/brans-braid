@@ -11,7 +11,7 @@ pub fn initialize_database(app_handle: &AppHandle) -> Result<Connection, rusqlit
         .expect("The app data directory should exist.");
     fs::create_dir_all(&app_dir).expect("The app data directory should be created.");
     let sqlite_path = app_dir.join("db.sqlite");
-    let mut db = Connection::open(sqlite_path).unwrap();
+    let mut db = Connection::open(sqlite_path)?;
     rusqlite::vtab::array::load_module(&db)?;
     let mut user_pragma = db.prepare("PRAGMA user_version")?;
     let existing_user_version: u32 = user_pragma.query_row([], |row| row.get(0))?;

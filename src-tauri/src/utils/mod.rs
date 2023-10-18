@@ -13,5 +13,5 @@ pub fn is_valid_filename(filename: &str) -> bool {
 }
 
 pub fn get_file_name(entry: &jwalk::DirEntry<((), ())>) -> &str {
-    entry.file_name().to_str().unwrap()
+    entry.file_name().to_str().unwrap_or_default()
 }

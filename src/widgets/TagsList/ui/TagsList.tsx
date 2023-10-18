@@ -7,6 +7,7 @@ export const TagsList: FC = () => {
 	const { tagsExplorerStore } = useRootStore();
 	return (
 		<Accordion>
+			<h4>Filter By Tags</h4>
 			{tagsExplorerStore.categoriesWithTags.map((categoryWithTags) => (
 				<AccordionItem 
 					title={`${categoryWithTags.category.name} - ${categoryWithTags.tags.length}`}
