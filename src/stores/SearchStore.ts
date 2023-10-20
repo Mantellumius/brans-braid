@@ -57,16 +57,16 @@ class SearchStore {
 				query: this.query,
 				depth: this.depthToNumber,
 			});
-			this.processQuery(this.queryNumber, this.query);
+			this.processQuery(this.queryNumber);
 		}
 		this.navigationStore.setItems = this.items;
 	}
 
-	*processQuery(searcherNumber: number, query: string) {
+	*processQuery(searcherNumber: number) {
 		this.items = [];
 		let items: Item[] | null = null;
 		while (items?.length !== 0) {
-			items = yield ipcInvoke<Item[]>('get_search_results', { searcherNumber, query });
+			items = yield ipcInvoke<Item[]>('get_search_results');
 			if (searcherNumber !== this.queryNumber) return;
 			this.items.push(...items!);
 		}

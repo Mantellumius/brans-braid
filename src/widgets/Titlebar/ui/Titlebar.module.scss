@@ -1,0 +1,37 @@
+.root {
+	position: absolute;
+	display: flex;
+	flex-direction: column;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: var(--titlebar-height);
+}
+
+.root__buttons {
+	align-self: flex-end;
+	display: flex;
+}
+
+.root__button {
+	width: 40px;
+	height: 30px;
+	border-radius: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: all 0.3s ease;
+}
+
+
+
+.root__button:hover {
+	background: var(--neutral-600);
+}
+
+.root__minimize {
+}
+
+.root__close:hover {
+	background: var(--danger-700);
+}

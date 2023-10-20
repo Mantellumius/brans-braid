@@ -2,12 +2,12 @@ import { FC } from 'react';
 import { useRootStore } from 'stores/RootStore';
 import { Tag } from './Tag';
 import { Accordion, AccordionItem } from 'shared/ui/Accordion';
+import { observer } from 'mobx-react';
 
-export const TagsList: FC = () => {
+export const TagsList: FC = observer(() => {
 	const { tagsExplorerStore } = useRootStore();
 	return (
-		<Accordion>
-			<h4>Filter By Tags</h4>
+		<Accordion title='Filter By Tags'>
 			{tagsExplorerStore.categoriesWithTags.map((categoryWithTags) => (
 				<AccordionItem 
 					title={`${categoryWithTags.category.name} - ${categoryWithTags.tags.length}`}
@@ -19,4 +19,4 @@ export const TagsList: FC = () => {
 			))}
 		</Accordion>
 	);
-};
+});

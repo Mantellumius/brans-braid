@@ -19,16 +19,13 @@ class HotkeysStore {
 
 	private subscribe() {
 		window.addEventListener('keydown', this.handleKeyDown.bind(this));
-		window.addEventListener('click', (e) =>
-			(e.altKey && e.button === 0) && e.preventDefault()
-		);
-		window.addEventListener('mousedown', (e) =>
-			(e.button === 3 || e.button === 4) && e.preventDefault()
-		);
+		window.addEventListener('click', (e) => (e.altKey && e.button === 0) && e.preventDefault());
+		window.addEventListener('mousedown', (e) => (e.button === 3 || e.button === 4) && e.preventDefault());
 	}
 
 	private handleKeyDown(e: KeyboardEvent) {
-		if ((e.target as Element).tagName === 'INPUT') return;
+		const target = e.target as Element;
+		if (target.tagName === 'INPUT' && target.getAttribute('type') !== 'checkbox') return;
 		const key = [(e.ctrlKey && 'ctrl'), (e.altKey && 'alt'), (e.shiftKey && 'shift'), e.code]
 			.filter(Boolean)
 			.join('+');

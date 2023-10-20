@@ -18,6 +18,7 @@ use std::{
     path::Path,
     sync::{Arc, Mutex},
 };
+use window_shadows::set_shadow;
 use tauri::{api::process::Command, AppHandle, Manager, Runtime, State, Window};
 
 fn main() {
@@ -57,6 +58,9 @@ fn main() {
             db: Default::default(),
         })
         .setup(|app| {
+            let window = app.get_window("main").unwrap();
+            #[cfg(any(windows, target_os = "macos"))]
+            set_shadow(&window, true).unwrap();
             let handle = app.handle();
             let db_state: State<AppState> = handle.state();
             let db =
@@ -90,12 +94,13 @@ fn read_dir(path: &str) -> IpcResponse<Vec<serde_json::Value>> {
 fn create_searcher<R: Runtime>(
     path: String,
     depth: usize,
+    query: String,
     app_state: State<AppState>,
     _app: AppHandle<R>,
     _window: Window<R>,
 ) -> IpcResponse<usize> {
     let mut searcher = app_state.searcher.lock().unwrap();
-    Ok(searcher.update_folder_iterator(path, depth)).into()
+    Ok(searcher.update_folder_iterator(path, depth, query)).into()
 }
 
 #[tauri::command]
@@ -113,13 +118,12 @@ fn get_folders_info<R: Runtime>(
 
 #[tauri::command(async)]
 fn get_search_results<R: Runtime>(
-    query: String,
     app_state: State<AppState>,
     _app: AppHandle<R>,
     _window: Window<R>,
 ) -> IpcResponse<Vec<Item>> {
-    let mut searcher = app_state.searcher.lock().unwrap();
-    Ok(searcher.get_results(query)).into()
+    let searcher = app_state.searcher.lock().unwrap();
+    Ok(searcher.get_results()).into()
 }
 
 fn execute_command(command: &str, args: Vec<&str>) {

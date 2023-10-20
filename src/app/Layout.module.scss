@@ -1,10 +1,10 @@
 .root {
+	--titlebar-height: 30px;
 	--header-height: 40px;
 	--footer-height: 24px;
 	display: flex;
-	position: relative;
 	flex-direction: column;
-	padding: 16px 0 var(--footer-height) 16px;
+	padding: calc(16px + var(--titlebar-height)) 0 var(--footer-height) 0;
 	color: var(--neutral-100);
 	font: var(--font-m);
 	height: 100vh;

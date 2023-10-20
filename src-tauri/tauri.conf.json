@@ -18,6 +18,17 @@
 			},
 			"globalShortcut": {
 				"all": true
+			},
+			"window": {
+				"all": false,
+				"startDragging": true,
+				"minimize": true,
+				"maximize": true,
+				"close": true,
+				"unmaximize": true,
+				"unminimize": true,
+				"hide": true,
+				"show": true
 			}
 		},
 		"bundle": {
@@ -38,8 +49,10 @@
 				"resizable": true,
 				"title": "Brans Braid",
 				"width": 1080,
-				"height": 600,
-				"additionalBrowserArgs": "--disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection,OverscrollHistoryNavigation,msExperimentalScrollin --disable-pinch"
+				"height": 675,
+				"additionalBrowserArgs": "--disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection,OverscrollHistoryNavigation,msExperimentalScrollin --disable-pinch",
+				"url": "/explorer",
+				"decorations": false
 			}
 		]
 	}

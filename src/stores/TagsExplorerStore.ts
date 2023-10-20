@@ -2,15 +2,18 @@ import { Category, Item, Tag } from 'bindings/';
 import { makeAutoObservable, autorun } from 'mobx';
 import { ipcInvoke } from 'shared/lib/ipcInvoke/ipcInvoke';
 import NavigationStore from './NavigationStore';
+import HotkeysStore from './HotkeysStore';
 
 class TagsExplorerStore {
 	tags: Tag[];
 	categories: Category[];
 	items: Item[] | null;
 	selectedTags: number[];
+	sidebarExpanded = true;
 
 	constructor(
-		private readonly navigationStore: NavigationStore
+		private readonly navigationStore: NavigationStore,
+		private readonly hotkeysStore: HotkeysStore
 	) {
 		this.tags = [];
 		this.categories = [];
@@ -18,6 +21,7 @@ class TagsExplorerStore {
 		this.selectedTags = [];
 		this.fetchTags();
 		this.fetchCategories();
+		this.register();
 		makeAutoObservable(this);
 		autorun(async () => {
 			if (this.selectedTags.length === 0) {
@@ -42,6 +46,14 @@ class TagsExplorerStore {
 			this.selectedTags = this.selectedTags.filter(t => t !== tag.id);
 		else
 			this.selectedTags.push(tag.id);
+	}
+
+	private register() {
+		this.hotkeysStore.setAction('ctrl+KeyT', this.toggleSidebar.bind(this));
+	}
+
+	private toggleSidebar() {
+		this.sidebarExpanded = !this.sidebarExpanded;
 	}
 
 	private async fetchTags() {

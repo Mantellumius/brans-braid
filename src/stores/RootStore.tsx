@@ -21,7 +21,7 @@ class RootStore {
 		this.popupStore = new PopupStore();
 		this.hotkeysStore = new HotkeysStore();
 		this.navigationStore = new NavigationStore(this.hotkeysStore);
-		this.tagsExplorerStore = new TagsExplorerStore(this.navigationStore);
+		this.tagsExplorerStore = new TagsExplorerStore(this.navigationStore, this.hotkeysStore);
 		this.searchStore = new SearchStore(this.hotkeysStore, this.navigationStore);
 		this.explorerStore = new ExplorerStore(this.hotkeysStore, this.navigationStore);
 		this.contextMenuStore = new ContextMenuStore(this.navigationStore, this.popupStore);

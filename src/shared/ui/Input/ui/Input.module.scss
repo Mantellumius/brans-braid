@@ -5,7 +5,7 @@
 	border-radius: 4px;
 }
 
-.root:focus {
+.root:not([type='checkbox']):focus {
 	outline: none;
 }
 

@@ -12,8 +12,8 @@ export const AccordionItem: FC<Props> = ({ className, title, children, disabled 
 				onClick={() => setCollapsed(prev => !prev)} 
 				disabled={disabled}>
 				{collapsed ? 
-					<img width={30} height={30} src={up} alt='collapsed' className={cls.root__icon} style={{transform: 'rotate(-90deg)'}}/> :
-					<img width={30} height={30} src={up} alt='expanded' className={cls.root__icon} style={{transform: 'rotate(0deg)'}}/> 
+					<img width={25} height={25} src={up} alt='collapsed' className={cls.root__icon} style={{transform: 'rotate(-90deg)'}}/> :
+					<img width={25} height={25} src={up} alt='expanded' className={cls.root__icon} style={{transform: 'rotate(0deg)'}}/> 
 				}
 				{title}
 			</Button>

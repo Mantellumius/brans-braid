@@ -10,6 +10,7 @@ type FolderIterator = Flatten<DirEntryIter<((), ())>>;
 
 pub struct Searcher {
     call_number: Arc<Mutex<usize>>,
+    query: Arc<Mutex<String>>,
     iterator: Arc<Mutex<FolderIterator>>,
 }
 
@@ -21,14 +22,16 @@ impl Default for Searcher {
                 String::from("."),
                 1,
             ))),
+            query: Arc::new(Mutex::new(String::new())),
         }
     }
 }
 
 impl Searcher {
-    pub fn get_results(&mut self, query: String) -> Vec<Item> {
+    pub fn get_results(&self) -> Vec<Item> {
         let mut iterator = self.iterator.lock().unwrap();
         let call_number = *self.call_number.lock().unwrap();
+        let query = &*self.query.lock().unwrap();
         let mut result = Vec::<Item>::new();
         let interval = Duration::from_secs(1);
         let start = Instant::now();
@@ -36,8 +39,10 @@ impl Searcher {
             .by_ref()
             .take_while(|_| *self.call_number.lock().unwrap() == call_number)
         {
-            if get_file_name(&entry).to_lowercase().contains(&query) {
-                result.push(Item::try_from(&entry).unwrap());
+            if get_file_name(&entry).to_lowercase().contains(query) {
+                if let Ok(item) = Item::try_from(&entry) {
+                    result.push(item);
+                }
             }
             if start.elapsed() > interval && !result.is_empty() {
                 return result;
@@ -50,11 +55,13 @@ impl Searcher {
         }
     }
 
-    pub fn update_folder_iterator(&mut self, path: String, depth: usize) -> usize {
+    pub fn update_folder_iterator(&mut self, path: String, depth: usize, query: String) -> usize {
         *self.iterator.lock().unwrap() = Searcher::create_folder_iterator(path, depth);
         *self.call_number.lock().unwrap() += 1;
+        *self.query.lock().unwrap() = query;
         *self.call_number.lock().unwrap()
     }
+
     fn create_folder_iterator(path: String, depth: usize) -> FolderIterator {
         WalkDir::new(path)
             .parallelism(jwalk::Parallelism::RayonNewPool(8))
