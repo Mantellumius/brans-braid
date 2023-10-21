@@ -8,13 +8,24 @@ import { useRootStore } from 'stores/RootStore';
 import { observer } from 'mobx-react';
 import { Number } from './Number';
 
-export const Item: FC<Props> = observer(({isSelected, index,item,  className}) => {
+function isInView(element: Element, containerRect: DOMRect) {
+	const elementRect = element.getBoundingClientRect();
+	return (
+		elementRect.top >= containerRect.top &&
+		elementRect.left >= containerRect.left &&
+		elementRect.bottom <= containerRect.bottom &&
+		elementRect.right <= containerRect.right
+	);
+
+}
+export const Item: FC<Props> = observer(({isSelected, index, item, className, containerRect}) => {
 	const { navigationStore, explorerStore } = useRootStore();
 	const ref = useRef<HTMLButtonElement>(null);
 	const onClick = useCallback(() => navigationStore.select(index), [index]);
 	const onDoubleClick = useCallback(() => explorerStore.openSelected(), []);
 	useEffect(() => {
 		if (isSelected) {
+			if (containerRect && isInView(ref.current as Element, containerRect)) return;
 			ref.current?.scrollIntoView();
 		}
 	},[isSelected]);
@@ -39,4 +50,5 @@ interface Props {
 	item: ExplorerItem,
 	index: number,
 	isSelected: boolean,
+	containerRect?: DOMRect
 }

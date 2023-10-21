@@ -7,6 +7,7 @@ import minimize from 'assets/icons/minimize.svg';
 import maximize from 'assets/icons/maximize.svg';
 import unmaximize from 'assets/icons/unmaximize.svg';
 import close from 'assets/icons/close.svg';
+import logo from 'assets/icons/logo.png';
 
 export const Titlebar: FC<Props> = ({ className }) => {
 	const [isMaximized, setIsMaximized] = useState(false);
@@ -27,6 +28,10 @@ export const Titlebar: FC<Props> = ({ className }) => {
 	},[]);
 	return (
 		<div data-tauri-drag-region className={classNames(cls.root, {}, [className])}>
+			<div className={cls.root__logo}>
+				<img width={20} height={20} src={logo}/>
+				<span>Brans Braid</span>
+			</div>
 			<div className={cls.root__buttons}>
 				<Button className={classNames(cls.root__button, {}, [cls.root__minimize])} onClick={handleMinimize}>
 					<img width={20} height={20} src={minimize}/>

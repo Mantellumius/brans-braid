@@ -4,56 +4,62 @@ import classNames from 'shared/lib/classNames/classNames';
 import { ipcInvoke } from 'shared/lib/ipcInvoke/ipcInvoke';
 import { Folder, Tag } from 'bindings/';
 import { Input } from 'shared/ui/Input';
-import { Button } from 'shared/ui/Button/Button';
 import { useRootStore } from 'stores/RootStore';
 import { observer } from 'mobx-react';
+import { Accordion, AccordionItem } from 'shared/ui/Accordion';
 
 export const UpdateTags: FC<Props> = observer(({ className }) => {
-	const {navigationStore} = useRootStore();
-	const [tags, setTags] = useState<Tag[]>([]);
-	const [folderTags, setFolderTags] = useState<number[]>([]);
+	const { navigationStore, tagsExplorerStore } = useRootStore();
+	const [folderTagIds, setFolderTagIds] = useState<number[]>([]);
 	const [folder, setFolder] = useState<Folder | null>(null);
-	const onConfirm = () => {
-		if (!folder) return;
-		ipcInvoke('update_folder_tags', {folderId: folder.id, tags: folderTags});	
-	};
 	useEffect(() => {
-		ipcInvoke<Tag[]>('get_tags').then(setTags);
-	},[]);
+		if (!folder || folderTagIds.length === 0) return;
+		ipcInvoke('update_folder_tags', {folderId: folder.id, tags: folderTagIds});	
+	},[folderTagIds]);
 	useEffect(() => {
 		(async () => {
 			try {
 				const folder = await ipcInvoke<Folder>('get_folder_by_path', {path: navigationStore.selectedItem.path});
-				if (!folder) return;
+				if (!folder) return ;
 				setFolder(folder);
 				const folderTags = await ipcInvoke<Tag[]>('get_folder_tags', {folderId: folder.id});
-				setFolderTags(folderTags.map(t => t.id));
+				setFolderTagIds(folderTags.map(t => t.id));
 			} catch (e) {
-				setFolderTags([]);
+				setFolderTagIds([]);
+				setFolder(null);
 			}
 		})();
 	}, [navigationStore.selectedItem, navigationStore.selectedIndex]);
 	return (
 		<div className={classNames(cls.root, {}, [className])}>
-			<h4>Update Tags</h4>
-			<ul>
-				{tags.map(t => (<li key={t.id} className={cls.root__tag}>
-					<Input checked={folderTags.includes(t.id)} 
-						onChange={() => {
-							if (folderTags.includes(t.id))
-								setFolderTags(prev => prev.filter(id => t.id !== id));
-							else 
-								setFolderTags(prev => [...prev, t.id]);
-						}} 
-						type='checkbox'/>
-					{t.name}
-				</li>))}
-			</ul>
-			<Button onClick={onConfirm}>Confirm</Button>
+			<Accordion title='Update Tags'>
+				{tagsExplorerStore.categoriesWithTags
+					.filter((categoryWithTags) => categoryWithTags.tags.length !== 0)
+					.map((categoryWithTags) => (
+						<AccordionItem 
+							title={`${categoryWithTags.category.name} - ${categoryWithTags.tags.length}`}
+							key={categoryWithTags.category.id} 
+						>
+							{categoryWithTags.tags.map((tag) => (
+								<li key={tag.id} className={cls.root__tag}>
+									<Input checked={folderTagIds.includes(tag.id)} 
+										onChange={() => {
+											if (folderTagIds.includes(tag.id))
+												setFolderTagIds(prev => prev.filter(id => tag.id !== id));
+											else 
+												setFolderTagIds(prev => [...prev, tag.id]);
+										}} 
+										type='checkbox'/>
+									{tag.name}
+								</li>
+							))}
+						</AccordionItem>
+					))}
+			</Accordion>
 		</div>
 	);
 });
-
+UpdateTags.displayName = 'UpdateTags';
 interface Props {
 	className?: string
 }

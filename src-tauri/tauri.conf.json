@@ -52,7 +52,8 @@
 				"height": 675,
 				"additionalBrowserArgs": "--disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection,OverscrollHistoryNavigation,msExperimentalScrollin --disable-pinch",
 				"url": "/explorer",
-				"decorations": false
+				"decorations": false,
+				"titleBarStyle": "Transparent"
 			}
 		]
 	}

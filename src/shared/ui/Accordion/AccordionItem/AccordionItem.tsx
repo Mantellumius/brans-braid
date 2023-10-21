@@ -1,10 +1,10 @@
-import { FC, PropsWithChildren, useState } from 'react';
+import { FC, PropsWithChildren, memo, useState } from 'react';
 import cls from './AccordionItem.module.scss';
 import classNames from 'shared/lib/classNames/classNames';
 import { Button } from 'shared/ui/Button/Button';
 import up from 'assets/icons/up.svg';
 
-export const AccordionItem: FC<Props> = ({ className, title, children, disabled = false }) => {
+export const AccordionItem: FC<Props> = memo(({ className, title, children, disabled = false }) => {
 	const [collapsed, setCollapsed] = useState(true);
 	return (
 		<div className={classNames(cls.root, {}, [className])}>
@@ -22,8 +22,8 @@ export const AccordionItem: FC<Props> = ({ className, title, children, disabled 
 			</div>
 		</div>
 	);
-};
-
+});
+AccordionItem.displayName = 'AccordionItem';
 interface Props extends PropsWithChildren {
 	className?: string,
 	title: string,

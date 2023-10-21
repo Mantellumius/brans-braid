@@ -1,4 +1,4 @@
-use std::{ffi::OsStr, fs, io, path::Path};
+use std::{ffi::OsStr, fs, io, path::Path, os::windows::prelude::MetadataExt};
 use ts_rs::TS;
 
 #[derive(Debug, serde::Serialize, TS)]
@@ -11,6 +11,7 @@ pub struct Item {
     pub is_dir: bool,
     pub is_file: bool,
     pub is_readonly: bool,
+    pub size: u64,
     pub extension: String,
 }
 
@@ -38,6 +39,7 @@ impl TryFrom<&fs::DirEntry> for Item {
             is_dir: dir.path().is_dir(),
             is_file: dir.path().is_file(),
             is_readonly: dir.metadata()?.permissions().readonly(),
+            size: dir.metadata()?.file_size(),
             extension: get_extension(dir),
         })
     }
@@ -67,6 +69,7 @@ impl TryFrom<&jwalk::DirEntry<((), ())>> for Item {
             is_dir: dir.path().is_dir(),
             is_file: dir.path().is_file(),
             is_readonly: dir.metadata()?.permissions().readonly(),
+            size: dir.metadata()?.file_size(),
             extension: get_extension_jwalk(dir),
         })
     }
@@ -83,6 +86,7 @@ impl TryFrom<&Path> for Item {
             is_dir: metadata.is_dir(),
             is_file: metadata.is_file(),
             is_readonly: metadata.permissions().readonly(),
+            size: metadata.file_size(),
             extension: String::new(),
         })
     }
