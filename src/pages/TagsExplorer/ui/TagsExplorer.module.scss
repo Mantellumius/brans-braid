@@ -1,0 +1,18 @@
+.root {
+	padding: 16px;
+}
+
+.root__addbutton {
+	background: var(--success-800);
+}
+
+.root__item {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.root__item__icon {
+	border-radius: 50%;
+	background: var(--danger-400);
+}

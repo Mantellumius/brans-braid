@@ -12,7 +12,9 @@ pub struct Folder {
 impl Folder {
     pub fn create(db: &Connection, path: &str) -> Result<usize> {
         db.prepare("INSERT INTO folders (path) VALUES (@path)")?
-            .execute(named_params! { "@path": path })
+            .execute(named_params! { "@path": path })?;
+        let id = db.last_insert_rowid();
+        Ok(id as usize)
     }
 
     pub fn get_or_create(db: &Connection, path: &str) -> Result<Folder> {

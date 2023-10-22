@@ -12,15 +12,27 @@ export const UpdateTags: FC<Props> = observer(({ className }) => {
 	const { navigationStore, tagsExplorerStore } = useRootStore();
 	const [folderTagIds, setFolderTagIds] = useState<number[]>([]);
 	const [folder, setFolder] = useState<Folder | null>(null);
-	useEffect(() => {
-		if (!folder || folderTagIds.length === 0) return;
-		ipcInvoke('update_folder_tags', {folderId: folder.id, tags: folderTagIds});	
-	},[folderTagIds]);
+	const handleChange = (tag: Tag) => {
+		const newTagIds = folderTagIds.includes(tag.id) ? 
+			folderTagIds.filter(id => tag.id !== id) :
+			[...folderTagIds, tag.id];
+		setFolderTagIds(newTagIds);
+		if (!folder) {
+			ipcInvoke<Folder>('get_or_create_folder', {path: navigationStore.selectedItem.path})
+				.then((folder) => {
+					setFolder(folder);
+					ipcInvoke('update_folder_tags', {folderId: folder.id, tags: newTagIds});	
+				});
+		} else {
+			ipcInvoke('update_folder_tags', {folderId: folder.id, tags: newTagIds});
+		}
+		return newTagIds;
+	};
 	useEffect(() => {
 		(async () => {
 			try {
 				const folder = await ipcInvoke<Folder>('get_folder_by_path', {path: navigationStore.selectedItem.path});
-				if (!folder) return ;
+				if (!folder) return;
 				setFolder(folder);
 				const folderTags = await ipcInvoke<Tag[]>('get_folder_tags', {folderId: folder.id});
 				setFolderTagIds(folderTags.map(t => t.id));
@@ -43,12 +55,7 @@ export const UpdateTags: FC<Props> = observer(({ className }) => {
 							{categoryWithTags.tags.map((tag) => (
 								<li key={tag.id} className={cls.root__tag}>
 									<Input checked={folderTagIds.includes(tag.id)} 
-										onChange={() => {
-											if (folderTagIds.includes(tag.id))
-												setFolderTagIds(prev => prev.filter(id => tag.id !== id));
-											else 
-												setFolderTagIds(prev => [...prev, tag.id]);
-										}} 
+										onChange={handleChange.bind(null, tag)} 
 										type='checkbox'/>
 									{tag.name}
 								</li>

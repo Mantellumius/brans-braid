@@ -1,22 +1,13 @@
-import { FC, useMemo } from 'react';
+import { FC } from 'react';
 import cls from './Item.module.scss';
-import { useRootStore } from 'stores/RootStore';
 import { observer } from 'mobx-react';
 
-export const Number: FC<Props> = observer(({ index, isSelected }) => {
-	const {navigationStore} = useRootStore();
-	const number = useMemo(() => {
-		return 1;
-		if (isSelected) return `${index + 1}`;
-		return Math.abs((index  ?? 0) - navigationStore.selectedIndex).toString();
-	}, []);
-	
+export const Number: FC<Props> = observer(({ index }) => {
 	return (
-		<span className={cls.root__item__num}>{number}</span>
+		<span className={cls.root__item__num}>{index + 1}</span>
 	);
 });
 Number.displayName = 'Number';
 interface Props {
 	index: number,
-	isSelected: boolean
 }

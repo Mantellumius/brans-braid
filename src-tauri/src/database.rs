@@ -32,26 +32,26 @@ pub fn upgrade_database_if_needed(
             "
             CREATE TABLE folders (
                 id INTEGER PRIMARY KEY,
-                path TEXT NOT NULL
+                path TEXT NOT NULL,
                 UNIQUE(path)
             );
             CREATE TABLE tags (
                 id INTEGER PRIMARY KEY,
                 name TEXT NOT NULL,
                 category_id INTEGER NOT NULL,
-                FOREIGN KEY (category_id) REFERENCES categories(id)
+                FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE,
                 UNIQUE(name)
             );
             CREATE TABLE categories (
                 id INTEGER PRIMARY KEY,
-                name TEXT NOT NULL
+                name TEXT NOT NULL,
                 UNIQUE(name)
             );
             CREATE TABLE folder_tag (
                 folder_id INTEGER NOT NULL,
                 tag_id INTEGER NOT NULL,
                 FOREIGN KEY (folder_id) REFERENCES folders(id),
-                FOREIGN KEY (tag_id) REFERENCES tags(id)
+                FOREIGN KEY (tag_id) REFERENCES tags(id),
                 UNIQUE(folder_id, tag_id)
             );
         ",

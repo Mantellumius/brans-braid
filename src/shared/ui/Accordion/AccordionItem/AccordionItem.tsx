@@ -1,4 +1,4 @@
-import { FC, PropsWithChildren, memo, useState } from 'react';
+import { FC, PropsWithChildren, ReactNode, memo, useState } from 'react';
 import cls from './AccordionItem.module.scss';
 import classNames from 'shared/lib/classNames/classNames';
 import { Button } from 'shared/ui/Button/Button';
@@ -26,6 +26,6 @@ export const AccordionItem: FC<Props> = memo(({ className, title, children, disa
 AccordionItem.displayName = 'AccordionItem';
 interface Props extends PropsWithChildren {
 	className?: string,
-	title: string,
+	title: string | ReactNode,
 	disabled?: boolean,
 }

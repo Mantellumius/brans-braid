@@ -16,6 +16,9 @@ export const Footer: FC<Props> = observer(({ className }) => {
 			<Link to={'/explorer'} className={cls.root__item}>
 				Explorer
 			</Link>
+			<Link to={'/tags'} className={cls.root__item}>
+				Tags
+			</Link>
 		</footer>
 	);
 });

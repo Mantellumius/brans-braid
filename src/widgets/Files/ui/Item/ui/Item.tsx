@@ -1,4 +1,4 @@
-import { FC, useCallback, useEffect, useRef } from 'react';
+import { FC, useCallback, useEffect, useMemo, useRef } from 'react';
 import cls from './Item.module.scss';
 import classNames from 'shared/lib/classNames/classNames';
 import { Folder } from 'widgets/Folder';
@@ -7,8 +7,9 @@ import { Item as ExplorerItem } from 'bindings/';
 import { useRootStore } from 'stores/RootStore';
 import { observer } from 'mobx-react';
 import { Number } from './Number';
+import { ActiveNumber } from './ActiveNumber';
 
-function isInView(element: Element, containerRect: DOMRect) {
+function checkIsInView(element: Element, containerRect: DOMRect) {
 	const elementRect = element.getBoundingClientRect();
 	return (
 		elementRect.top >= containerRect.top &&
@@ -16,17 +17,17 @@ function isInView(element: Element, containerRect: DOMRect) {
 		elementRect.bottom <= containerRect.bottom &&
 		elementRect.right <= containerRect.right
 	);
-
 }
-export const Item: FC<Props> = observer(({isSelected, index, item, className, containerRect}) => {
+
+export const Item: FC<Props> = observer(({isSelected, index, item, className, containerRect, totalItems}) => {
 	const { navigationStore, explorerStore } = useRootStore();
 	const ref = useRef<HTMLButtonElement>(null);
 	const onClick = useCallback(() => navigationStore.select(index), [index]);
 	const onDoubleClick = useCallback(() => explorerStore.openSelected(), []);
+	const isItemInView = useMemo(() => containerRect && ref.current && checkIsInView(ref.current as Element, containerRect), [containerRect, ref.current, isSelected]);
 	useEffect(() => {
-		if (isSelected) {
-			if (containerRect && isInView(ref.current as Element, containerRect)) return;
-			ref.current?.scrollIntoView();
+		if (isSelected && !isItemInView) {
+			ref.current?.scrollIntoView({ block: 'nearest' });
 		}
 	},[isSelected]);
 	return (
@@ -38,7 +39,10 @@ export const Item: FC<Props> = observer(({isSelected, index, item, className, co
 			onDoubleClick={onDoubleClick}
 		>
 			<li className={cls.root__item}>
-				<Number index={index} isSelected={isSelected}/>
+				{
+					totalItems < 100 ? <ActiveNumber index={index} isSelected={isSelected}/> : 
+						<Number index={index} /> 
+				}
 				{item.isDir ? <Folder item={item} /> : <File item={item} />}
 			</li>
 		</button>
@@ -50,5 +54,6 @@ interface Props {
 	item: ExplorerItem,
 	index: number,
 	isSelected: boolean,
-	containerRect?: DOMRect
+	containerRect?: DOMRect,
+	totalItems: number
 }

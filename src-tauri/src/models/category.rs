@@ -12,7 +12,9 @@ pub struct Category {
 impl Category {
     pub fn create(db: &Connection, name: &str) -> Result<usize, rusqlite::Error> {
         db.prepare("INSERT INTO categories (name) VALUES (@name)")?
-            .execute(named_params! { "@name": name })
+            .execute(named_params! { "@name": name })?;
+        let id = db.last_insert_rowid();
+        Ok(id as usize)
     }
 
     pub fn delete(db: &Connection, id: usize) -> Result<usize, rusqlite::Error> {

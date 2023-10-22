@@ -48,6 +48,23 @@ class TagsExplorerStore {
 			this.selectedTags.push(tag.id);
 	}
 
+	*addCategory(categoryName: string) {
+		const id: number = yield ipcInvoke<number>('create_category', { name: categoryName });
+		this.categories.push({ id, name: categoryName } as Category);
+	}
+
+	*addTag(tagName: string, categoryId: number) {
+		const id: number = yield ipcInvoke<number>('create_tag', { name: tagName, categoryId });
+		this.tags.push({ id, name: tagName, categoryId } as Tag);
+	}
+
+	*deleteTag(tagId: number) {
+		yield ipcInvoke('delete_tag', { id: tagId });
+		this.tags = this.tags.filter(tag => tag.id !== tagId);
+		if (this.selectedTags.includes(tagId))
+			this.selectedTags = this.selectedTags.filter(id => id !== tagId);
+	}
+
 	private register() {
 		this.hotkeysStore.setAction('ctrl+KeyT', this.toggleSidebar.bind(this));
 	}
@@ -64,7 +81,5 @@ class TagsExplorerStore {
 		this.categories = await ipcInvoke<Category[]>('get_categories');
 	}
 }
-
-
 
 export default TagsExplorerStore;

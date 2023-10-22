@@ -17,7 +17,9 @@ impl Tag {
         category_id: usize,
     ) -> Result<usize, rusqlite::Error> {
         db.prepare("INSERT INTO tags (name, category_id) VALUES (@name, @category_id)")?
-            .execute(named_params! { "@name": name, "@category_id": category_id })
+            .execute(named_params! { "@name": name, "@category_id": category_id })?;
+        let id = db.last_insert_rowid() as usize;
+        Ok(id)
     }
 
     pub fn delete(db: &Connection, id: usize) -> Result<usize, rusqlite::Error> {
