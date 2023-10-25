@@ -1,5 +1,4 @@
 import { FC, useEffect, useState } from 'react';
-import cls from './AskTagPopup.module.scss';
 import classNames from 'shared/lib/classNames/classNames';
 import { Popup } from 'shared/ui/Popup';
 import { useRootStore } from 'stores/RootStore';
@@ -23,9 +22,8 @@ export const AskTagPopup: FC<Props> = observer(({ className }) => {
 	return (
 		<Popup>
 			<div onKeyDown={e => e.key === 'Enter' && onEnter()}  
-				className={classNames(cls.root, {}, [className])}>
+				className={classNames('', {}, [className])}>
 				<AutoCompleteInput 
-					className={cls.root__input}
 					autocompleteOptions={tags.map(t => t.name)} 
 					value={tagName} 
 					onChange={(e) => setTagName(e.target.value)} placeholder='tag name' 

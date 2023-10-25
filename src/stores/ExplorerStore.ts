@@ -1,8 +1,8 @@
-import { makeAutoObservable, autorun } from 'mobx';
-import HotkeysStore from './HotkeysStore';
 import { open } from '@tauri-apps/api/shell';
 import { Item } from 'bindings/';
+import { autorun, makeAutoObservable } from 'mobx';
 import { ipcInvoke } from 'shared/lib/ipcInvoke/ipcInvoke';
+import HotkeysStore from './HotkeysStore';
 import NavigationStore from './NavigationStore';
 
 class ExplorerStore {
@@ -33,7 +33,7 @@ class ExplorerStore {
 	}
 
 	private subscribe() {
-		this.hotkeysStore.setAction('Enter', () => this.openSelected());
+		this.hotkeysStore.setAction(['Enter', 'NumpadEnter'], () => this.openSelected());
 	}
 }
 

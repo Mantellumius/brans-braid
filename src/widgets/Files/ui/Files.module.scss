@@ -1,33 +1,35 @@
 .root {
 	display: flex;
+	flex: 1;
 	flex-direction: column;
 	gap: 16px;
-	flex: 1;
 	overflow: auto;
 
 	&::-webkit-scrollbar {
-  		width: 16px;
+		width: 16px;
 	}
 	
-	&::-webkit-scrollbar-track {
-		background: inherit; 
+	&::-webkit-scrollbar-track { 
 		border-radius: 100px;
+		background: inherit;
 	}
 	
 	&::-webkit-scrollbar-thumb {
-		background: var(--primary-600); 
+		border: 6px solid var(--bg-color); 
 		border-radius: 8px;
-		border: 6px solid var(--bg-color);
+		background: var(--primary-600);
 	}
 	
 	&::-webkit-scrollbar-thumb:hover {
 		background: var(--primary-800); 
 	}
+	
+	&__list {
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+		list-style: none;
+	}
 }
 
-.root__list {
-	display: flex;
-	flex-direction: column;
-	gap: 8px;
-	list-style: none;
-}
+

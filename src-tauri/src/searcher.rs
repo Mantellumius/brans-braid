@@ -19,7 +19,7 @@ impl Default for Searcher {
         Self {
             call_number: Arc::new(Mutex::new(0)),
             iterator: Arc::new(Mutex::new(Searcher::create_folder_iterator(
-                String::from("."),
+                ".",
                 1,
             ))),
             query: Arc::new(Mutex::new(String::new())),
@@ -55,14 +55,14 @@ impl Searcher {
         }
     }
 
-    pub fn update_folder_iterator(&mut self, path: String, depth: usize, query: String) -> usize {
+    pub fn update_folder_iterator(&mut self, path: &str, depth: usize, query: String) -> usize {
         *self.iterator.lock().unwrap() = Searcher::create_folder_iterator(path, depth);
         *self.call_number.lock().unwrap() += 1;
         *self.query.lock().unwrap() = query;
         *self.call_number.lock().unwrap()
     }
 
-    fn create_folder_iterator(path: String, depth: usize) -> FolderIterator {
+    fn create_folder_iterator(path: &str, depth: usize) -> FolderIterator {
         WalkDir::new(path)
             .parallelism(jwalk::Parallelism::RayonNewPool(8))
             .min_depth(1)

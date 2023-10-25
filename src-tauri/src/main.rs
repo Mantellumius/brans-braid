@@ -11,15 +11,13 @@ pub use error::{Error, Result};
 
 use ipc::{api, category, folder, tags, IpcResponse};
 use models::*;
-use searcher::Searcher;
 use state::AppState;
 use std::{
     fs::{self},
     path::Path,
-    sync::{Arc, Mutex},
 };
-use window_shadows::set_shadow;
 use tauri::{api::process::Command, AppHandle, Manager, Runtime, State, Window};
+use window_shadows::set_shadow;
 
 fn main() {
     tauri::Builder::default()
@@ -53,10 +51,7 @@ fn main() {
             api::get_folder_tags,
             api::update_folder_tags
         ])
-        .manage(AppState {
-            searcher: Arc::new(Mutex::new(Searcher::default())),
-            db: Default::default(),
-        })
+        .manage(AppState::default())
         .setup(|app| {
             let window = app.get_window("main").unwrap();
             #[cfg(any(windows, target_os = "macos"))]
@@ -100,7 +95,7 @@ fn create_searcher<R: Runtime>(
     _window: Window<R>,
 ) -> IpcResponse<usize> {
     let mut searcher = app_state.searcher.lock().unwrap();
-    Ok(searcher.update_folder_iterator(path, depth, query)).into()
+    Ok(searcher.update_folder_iterator(&path, depth, query)).into()
 }
 
 #[tauri::command]
@@ -132,4 +127,3 @@ fn execute_command(command: &str, args: Vec<&str>) {
         .spawn()
         .expect("Failed to execute command");
 }
-

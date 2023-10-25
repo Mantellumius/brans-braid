@@ -79,10 +79,11 @@ class NavigationStore {
 		this.hotkeysStore.setAction('KeyJ', () => this.moveDown(this.consumeMultiplier()));
 		this.hotkeysStore.setAction('KeyK', () => this.moveUp(this.consumeMultiplier()));
 		this.hotkeysStore.setAction('KeyL', () => this.nextFolder(this.consumeMultiplier()));
-		for (let i = 0; i < 10; i++) {
-			this.hotkeysStore.setAction(`Digit${i}`, () => this.actionMultiplier += i);
-			this.hotkeysStore.setAction(`Numpad${i}`, () => this.actionMultiplier += i);
-		}
+		for (let i = 0; i < 10; i++)
+			this.hotkeysStore.setAction(
+				[`Digit${i}`, `Numpad${i}`],
+				() => this.actionMultiplier += i
+			);
 	}
 
 	private consumeMultiplier() {

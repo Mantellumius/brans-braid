@@ -1,12 +1,14 @@
-.root__button {
-	padding-block: 4px;
-	padding-inline: 0!important;
-}
+.root {
+	&__button {
+		padding-inline: 0!important;
+		padding-block: 4px;
+	}
 
-.root__content {
-	padding-inline: 8px;
-}
+	&__content {
+		padding-inline: 8px;
+	}
 
-.root__icon {
-	transition: transform .1s ease;
+	&__icon {
+		transition: transform .1s ease;
+	}
 }

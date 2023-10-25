@@ -1,16 +1,17 @@
 .root {
 	display: flex;
 	justify-content: space-between;
-	height: 100%;
 	width: 100%;
+	height: 100%;
+
+	&__name {
+		display: flex;
+		align-items: center;
+	}
+
+	&__metadata {
+		display: flex;
+		align-items: center;
+	}
 }
 
-.root__name {
-	display: flex;
-	align-items: center;
-}
-
-.root__metadata {
-	display: flex;
-	align-items: center;
-}

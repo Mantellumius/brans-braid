@@ -1,18 +1,19 @@
 .root {
 	display: flex;
-	border: 1px solid var(--neutral-800);
-	border-radius: 4px;
+	justify-content: space-between;
 	align-items: center;
 	padding-inline: 12px;
-	justify-content: space-between;
+	border: 1px solid var(--neutral-800);
+	border-radius: 4px;
+
+	&__input {
+		border: none;
+
+	}
+
+	&__input:focus {
+		border: none;
+		outline: none;
+	}
 }
 
-.root__input {
-	border: none;
-
-}
-
-.root__input:focus {
-	border: none;
-	outline: none;
-}

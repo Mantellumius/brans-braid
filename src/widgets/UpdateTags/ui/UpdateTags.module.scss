@@ -1,4 +1,7 @@
-.root__tag {
-	display: flex;	
-	gap: 4px;
+
+.root {
+	&__tag {
+		display: flex;	
+		gap: 4px;
+	}
 }

@@ -2,18 +2,18 @@
 	display: flex;
 	align-items: center;
 	padding: 4px;
-	background: var(--bg-color);
 	border: none;
-	transition: transform .1s ease-in;
 	border-radius: 8px;
+	background: var(--bg-color);
 	cursor: pointer;
-}
+	transition: transform .1s ease-in;
+	
+	&:focus {
+		outline: none;
+	}
 
-.root:focus {
-	outline: none;
-}
-
-.root:disabled {
-	opacity: .8;
-	cursor: initial;
+	&:disabled {
+		opacity: .8;
+		cursor: initial;
+	}
 }

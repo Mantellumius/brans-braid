@@ -1,9 +1,8 @@
 .root {
 	display: flex;
-	flex-direction: column;
-	flex-wrap: wrap;
-}
+	flex-flow: column wrap;
 
-.root__title {
-	text-wrap: nowrap;
+	&__title {
+		text-wrap: nowrap;
+	}
 }

@@ -11,10 +11,10 @@ class HotkeysStore {
 	}
 
 	private addReset() {
-		this.setAction('ctrl+shift+KeyG', (e) => e.preventDefault());
-		this.setAction('ctrl+KeyG', (e) => e.preventDefault());
-		this.setAction('ctrl+KeyP', (e) => e.preventDefault());
-		this.setAction('ctrl+shift+KeyS', (e) => e.preventDefault());
+		this.setAction(
+			['ctrl+shift+KeyG', 'ctrl+KeyG', 'ctrl+KeyP', 'ctrl+KeyP'],
+			(e) => e.preventDefault()
+		);
 	}
 
 	private subscribe() {
@@ -36,8 +36,11 @@ class HotkeysStore {
 		}
 	}
 
-	setAction(key: string, action: (e: KeyboardEvent) => void) {
-		this.actions.set(key, action);
+	setAction(key: string | string[], action: (e: KeyboardEvent) => void) {
+		if (Array.isArray(key))
+			key.forEach((k) => this.actions.set(k, action));
+		else
+			this.actions.set(key, action);
 	}
 }
 

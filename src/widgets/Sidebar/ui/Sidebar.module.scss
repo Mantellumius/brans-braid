@@ -2,42 +2,42 @@
 	display: flex;
 	flex-direction: column;
 	gap: 12px;
+	align-items: flex-start;
+	overflow: hidden;
 	width: 0;
 	height: 100%;
-	background: var(--bg-color);
-	overflow: hidden;
-	transition: all 0.2s ease;
 	border-right: 0 solid var(--secondary-800);
+	background: var(--bg-color);
 	text-wrap: nowrap;
-	align-items: flex-start;
+	transition: all 0.2s ease;
 
 	>div:nth-child(odd) {
 		padding-left: 16px;
 	}
 
 	&::-webkit-scrollbar {
-  		width: 16px;
+		width: 16px;
 	}
 	
-	&::-webkit-scrollbar-track {
-		background: inherit; 
+	&::-webkit-scrollbar-track { 
 		border-radius: 100px;
+		background: inherit;
 	}
 	
 	&::-webkit-scrollbar-thumb {
-		background: var(--primary-600); 
+		border: 6px solid var(--bg-color); 
 		border-radius: 8px;
-		border: 6px solid var(--bg-color);
+		background: var(--primary-600);
 	}
 	
 	&::-webkit-scrollbar-thumb:hover {
 		background: var(--primary-800); 
 	}
+
+	&_expanded {
+		overflow: hidden auto;
+		width: 175px;
+		border-right: 2px solid var(--secondary-800);
+	}
 }
 
-.root_expanded {
-	width: 175px;
-	overflow-x: hidden;
-	overflow-y: auto;
-	border-right: 2px solid var(--secondary-800);
-}

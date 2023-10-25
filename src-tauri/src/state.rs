@@ -4,6 +4,7 @@ use rusqlite::Connection;
 
 use crate::searcher::Searcher;
 
+#[derive(Default)]
 pub struct AppState {
     pub db: Mutex<Option<rusqlite::Connection>>,
     pub searcher: Arc<Mutex<Searcher>>,

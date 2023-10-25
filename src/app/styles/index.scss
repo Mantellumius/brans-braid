@@ -1,8 +1,8 @@
-@import './reset.scss';
-@import './variables/globals.scss';
+@import './reset';
+@import './variables/globals';
 
 body {
+	overflow: hidden;
 	height: 100vh;
 	background-color: var(--bg-color);
-	overflow: hidden;
 }
