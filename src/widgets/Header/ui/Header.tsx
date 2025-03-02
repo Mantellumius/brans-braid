@@ -5,13 +5,13 @@ import { Path } from 'widgets/Path';
 import { Search } from 'widgets/Search';
 
 export const Header: FC<Props> = ({ className }) => {
-	return (
-		<header className={classNames(cls.root, {}, [className])}>
-			<Path />
-			<Search />
-			{/* <Navigtaion /> */}
-		</header>
-	);
+    return (
+        <header className={classNames(cls.root, {}, [className])}>
+            <Path />
+            <Search />
+            {/* <Navigtaion /> */}
+        </header>
+    );
 };
 
 interface Props {

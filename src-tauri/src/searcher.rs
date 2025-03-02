@@ -62,7 +62,7 @@ impl Searcher {
         *self.call_number.lock().unwrap()
     }
 
-    fn create_folder_iterator(path: &str, depth: usize) -> FolderIterator {
+    pub fn create_folder_iterator(path: &str, depth: usize) -> FolderIterator {
         WalkDir::new(path)
             .parallelism(jwalk::Parallelism::RayonNewPool(8))
             .min_depth(1)

@@ -7,14 +7,15 @@ import { Header } from 'widgets/Header';
 import { Titlebar } from 'widgets/Titlebar';
 
 const Layout = () => { 
-	return (
-		<div id='layout' className={classNames(cls.root)}>
-			<Titlebar />
-			<Header />
-			<Outlet />
-			<Footer />	
-		</div>
-	);
+    return (
+        <div id='layout' className={classNames(cls.root)}>
+            <Titlebar />
+            <Header />
+            <Outlet />
+            <Footer />	
+        </div>
+    );
 };
 
 export default Layout;
+	

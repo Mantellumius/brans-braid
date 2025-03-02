@@ -9,16 +9,16 @@ import { Sidebar } from 'widgets/Sidebar';
 import { Hr } from 'shared/ui/Hr';
 
 export const Explorer: FC<Props> = observer(({ className }) => {
-	return (
-		<main className={classNames(cls.root, {}, [className])}>
-			<Sidebar>
-				<TagsList />
-				<Hr />
-				<UpdateTags />
-			</Sidebar>
-			<Files />
-		</main>
-	);
+    return (
+        <main className={classNames(cls.root, {}, [className])}>
+            <Sidebar>
+                <TagsList />
+                <Hr />
+                <UpdateTags />
+            </Sidebar>
+            <Files />
+        </main>
+    );
 });
 
 interface Props {

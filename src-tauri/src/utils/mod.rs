@@ -1,7 +1,10 @@
-const INVALID_DIRS: [&str; 7] = [
+const INVALID_DIRS: [&str; 10] = [
     ".git",
     "venv",
     ".idea",
+    "dist",
+    "build",
+    "target",
     "node_modules",
     "Library",
     "Debug",

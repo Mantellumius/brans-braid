@@ -11,8 +11,10 @@ pub use error::{Error, Result};
 
 use ipc::{api, category, folder, tags, IpcResponse};
 use models::*;
+use searcher::Searcher;
 use state::AppState;
 use std::{
+    collections::HashMap,
     fs::{self},
     path::Path,
 };
@@ -27,6 +29,7 @@ fn main() {
             create_searcher,
             get_search_results,
             get_folders_info,
+            analyze_languages,
             code,
             category::create_category,
             category::get_categories,
@@ -120,6 +123,40 @@ fn get_search_results<R: Runtime>(
     let searcher = app_state.searcher.lock().unwrap();
     Ok(searcher.get_results()).into()
 }
+
+#[tauri::command(async)]
+fn analyze_languages<R: Runtime>(
+    path: String,
+    _app: tauri::AppHandle<R>,
+    _window: tauri::Window<R>,
+) -> IpcResponse<HashMap<String, Vec<String>>> {
+    let iterator = Searcher::create_folder_iterator(&path, 100000000000);
+    let mut result = HashMap::<String, Vec<String>>::new();
+    iterator
+        .filter(|dir| dir.metadata().unwrap().is_file())
+        .map(|dir| Item::try_from(&dir).unwrap())
+        .for_each(|item| {
+            result
+                .entry(item.extension)
+                .or_insert(vec![])
+                .push(item.path);
+        });
+    Ok(result).into()
+}
+
+// #[tauri::command(async)]
+// fn analyze_languages<R: Runtime>(
+//     path: String,
+//     _app: tauri::AppHandle<R>,
+//     _window: tauri::Window<R>,
+// ) -> IpcResponse<Vec<String>> {
+//     let iterator = Searcher::create_folder_iterator(&path, 100000000000);
+//     let result = iterator
+//         .filter(|dir| dir.metadata().unwrap().is_file())
+//         .map(|dir| Item::try_from(&dir).unwrap().path)
+//         .collect();
+//     Ok(result).into()
+// }
 
 fn execute_command(command: &str, args: Vec<&str>) {
     Command::new("cmd")

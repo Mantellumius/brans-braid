@@ -8,6 +8,7 @@
     "dev:ui": "vite",
     "build": "tauri build",
     "build:ui": "vite build",
+    "lint": "eslint ./ --fix",
     "tauri": "tauri"
   },
   "dependencies": {

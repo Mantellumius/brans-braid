@@ -7,15 +7,15 @@ import { useRootStore } from 'stores/RootStore';
 import { observer } from 'mobx-react';
 
 export const Tag: FC<Props> = observer(({ className, tag }) => {
-	const { tagsExplorerStore } = useRootStore();
-	return (
-		<div className={classNames(cls.root, {}, [className])}>
-			<Input onChange={() => tagsExplorerStore.toggleTag(tag)} 
-				checked={tagsExplorerStore.selectedTags.includes(tag.id)} 
-				type='checkbox'/>
-			{tag.name}
-		</div>
-	);
+    const { tagsExplorerStore } = useRootStore();
+    return (
+        <div className={classNames(cls.root, {}, [className])}>
+            <Input onChange={() => tagsExplorerStore.toggleTag(tag)} 
+                checked={tagsExplorerStore.selectedTags.includes(tag.id)} 
+                type='checkbox'/>
+            {tag.name}
+        </div>
+    );
 });
 
 interface Props {

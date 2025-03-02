@@ -28,8 +28,8 @@ module.exports = {
 		'react/react-in-jsx-scope': 0,
 		'indent': [
 			'error',
-			'tab',
-],
+			4,
+        ],
 		'linebreak-style': [
 			'error',
 			'unix'

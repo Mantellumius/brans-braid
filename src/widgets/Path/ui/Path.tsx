@@ -5,12 +5,12 @@ import { useRootStore } from 'stores/RootStore';
 import { observer } from 'mobx-react';
 
 export const Path: FC<Props> = observer(({ className }) => {
-	const { navigationStore } = useRootStore();
-	return (
-		<div className={classNames(cls.root, {}, [className])}>
-			{navigationStore.path}
-		</div>
-	);
+    const { navigationStore } = useRootStore();
+    return (
+        <div className={classNames(cls.root, {}, [className])}>
+            {navigationStore.path}
+        </div>
+    );
 });
 
 interface Props {

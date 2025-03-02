@@ -5,12 +5,12 @@ import { useRootStore } from 'stores/RootStore';
 import { observer } from 'mobx-react';
 
 export const Sidebar: FC<Props> = observer(({ className, children }) => {
-	const {tagsExplorerStore} = useRootStore();
-	return (
-		<div className={classNames(cls.root, {[cls.root_expanded]: tagsExplorerStore.sidebarExpanded}, [className])}>
-			{children}
-		</div>
-	);
+    const {tagsExplorerStore} = useRootStore();
+    return (
+        <div className={classNames(cls.root, {[cls.root_expanded]: tagsExplorerStore.sidebarExpanded}, [className])}>
+            {children}
+        </div>
+    );
 });
 
 interface Props {

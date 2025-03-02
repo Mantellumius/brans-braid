@@ -7,17 +7,17 @@ import { Item } from 'bindings/';
 import autoScaleConvert from 'shared/lib/autoScaleConvert/autoScaleConvert';
 
 export const File: FC<Props> = memo(({ className, item }) => {
-	return (
-		<div className={classNames(cls.root, {}, [className])}>
-			<div className={cls.root__name}>
-				<Icon icon={FileIcon} width={25} height={25}/> 
-				{item.name}
-			</div>
-			<div className={cls.root__metadata}>
-				{autoScaleConvert(item.size)}
-			</div>
-		</div>
-	);
+    return (
+        <div className={classNames(cls.root, {}, [className])}>
+            <div className={cls.root__name}>
+                <Icon icon={FileIcon} width={25} height={25} alt='file'/> 
+                {item.name}
+            </div>
+            <div className={cls.root__metadata}>
+                {autoScaleConvert(item.size)}
+            </div>
+        </div>
+    );
 });
 File.displayName = 'File';
 interface Props {
