@@ -1,60 +1,41 @@
 {
-	"build": {
-		"beforeDevCommand": "npm run dev:ui",
-		"beforeBuildCommand": "npm run build:ui",
-		"devPath": "http://localhost:1420",
-		"distDir": "../dist",
-		"withGlobalTauri": false
-	},
-	"package": {
-		"productName": "brans-braid",
-		"version": "0.0.0"
-	},
-	"tauri": {
-		"allowlist": {
-			"all": false,
-			"shell": {
-				"open": "."
-			},
-			"globalShortcut": {
-				"all": true
-			},
-			"window": {
-				"all": false,
-				"startDragging": true,
-				"minimize": true,
-				"maximize": true,
-				"close": true,
-				"unmaximize": true,
-				"unminimize": true,
-				"hide": true,
-				"show": true
-			}
-		},
-		"bundle": {
-			"active": true,
-			"targets": "all",
-			"identifier": "brans-braid",
-			"icon": [
-				"icons/icon.ico",
-				"icons/icon.png"
-			]
-		},
-		"security": {
-			"csp": null
-		},
-		"windows": [
-			{
-				"fullscreen": false,
-				"resizable": true,
-				"title": "Brans Braid",
-				"width": 1080,
-				"height": 675,
-				"additionalBrowserArgs": "--disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection,OverscrollHistoryNavigation,msExperimentalScrollin --disable-pinch",
-				"url": "/explorer",
-				"decorations": false,
-				"titleBarStyle": "Transparent"
-			}
-		]
-	}
+  "build": {
+    "beforeDevCommand": "npm run dev:ui",
+    "beforeBuildCommand": "npm run build:ui",
+    "frontendDist": "../dist",
+    "devUrl": "http://localhost:1420"
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/icon.ico",
+      "icons/icon.png"
+    ]
+  },
+  "productName": "brans-braid",
+  "mainBinaryName": "brans-braid",
+  "version": "0.0.0",
+  "identifier": "brans-braid",
+  "plugins": {},
+  "app": {
+    "withGlobalTauri": false,
+    "windows": [
+      {
+        "fullscreen": false,
+        "resizable": true,
+        "title": "Brans Braid",
+        "width": 1080,
+        "height": 675,
+        "additionalBrowserArgs": "--disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection,OverscrollHistoryNavigation,msExperimentalScrollin --disable-pinch",
+        "url": "/explorer",
+        "decorations": false,
+        "titleBarStyle": "Transparent",
+        "useHttpsScheme": true
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  }
 }

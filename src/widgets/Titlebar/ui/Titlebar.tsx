@@ -1,13 +1,14 @@
 import { FC, useEffect, useState } from 'react';
 import cls from './Titlebar.module.scss';
 import classNames from 'shared/lib/classNames/classNames';
-import { appWindow } from '@tauri-apps/api/window';
+import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
 import { Button } from 'shared/ui/Button/Button';
 import minimize from 'assets/icons/minimize.svg';
 import maximize from 'assets/icons/maximize.svg';
 import unmaximize from 'assets/icons/unmaximize.svg';
 import close from 'assets/icons/close.svg';
 import logo from 'assets/icons/logo.png';
+const appWindow = getCurrentWebviewWindow()
 
 export const Titlebar: FC<Props> = ({ className }) => {
     const [isMaximized, setIsMaximized] = useState(false);

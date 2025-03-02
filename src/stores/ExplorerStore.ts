@@ -1,4 +1,4 @@
-import { open } from '@tauri-apps/api/shell';
+import { open } from '@tauri-apps/plugin-shell';
 import { Item } from 'bindings/';
 import { autorun, makeAutoObservable } from 'mobx';
 import { ipcInvoke } from 'shared/lib/ipcInvoke/ipcInvoke';

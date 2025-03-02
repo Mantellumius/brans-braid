@@ -1,4 +1,4 @@
-import { isRegistered, register } from '@tauri-apps/api/globalShortcut';
+import { isRegistered, register } from '@tauri-apps/plugin-global-shortcut';
 import { Folder, Item } from 'bindings/';
 import { makeAutoObservable } from 'mobx';
 import { ipcInvoke } from 'shared/lib/ipcInvoke/ipcInvoke';
